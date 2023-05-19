@@ -2,6 +2,6 @@ rootProject.name = "Router"
 
 include ':app'
 include ':router_api'
-include ':annotation'
+include ':router_annotation'
 include ':router_compiler'
 include ':lib'
