@@ -1,6 +1,7 @@
 package com.mm.router
 
 import android.app.Activity
+import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -217,8 +218,11 @@ class RouterBuilder(
                         }
                         filterIntent(it, resultCallback)
                     } as T
+                } catch (e: ActivityNotFoundException) {
+                    e.printStackTrace()
+                    return false as T
                 } catch (e: Exception) {
-                    throw IllegalArgumentException("The activity return type is fixed to the bool type")
+                    throw IllegalArgumentException("The activity return type [$] is fixed to the bool type")
                 }
             }
 
@@ -273,15 +277,7 @@ class RouterBuilder(
             result = routerFragment.navigation(intent, callback)
         } else if (meta.type == RouterType.SYSTEM_ACTIVITY) {
             when (meta.path) {
-                Router.Path.ACTION_CONTENT -> routerFragment.navigationContent(intent) { uri ->
-                    val intent1 = Intent()
-                    uri?.let {
-                        intent1.data = it
-                    }
-                    val activityResult =
-                        ActivityResult(if (uri != null) Activity.RESULT_OK else Activity.RESULT_CANCELED, intent1)
-                    callback.onActivityResult(activityResult)
-                }
+                Router.Path.ACTION_CONTENT -> routerFragment.navigationContent(intent, callback)
 
                 Router.Path.ACTION_MULTI_CONTENT -> routerFragment.navigationMultipleContent(intent) { list ->
                     val intent1 = Intent()
@@ -305,35 +301,11 @@ class RouterBuilder(
                     callback.onActivityResult(activityResult)
                 }
 
-                Router.Path.ACTION_TAKE_PICTURE -> routerFragment.navigationTakePicture(intent) {
-                    callback.onActivityResult(
-                        ActivityResult(
-                            if (it) Activity.RESULT_OK else Activity.RESULT_CANCELED, null
-                        )
-                    )
-                }
+                Router.Path.ACTION_TAKE_PICTURE -> routerFragment.navigationTakePicture(intent, callback)
 
-                Router.Path.ACTION_TAKE_VIDEO -> routerFragment.navigationTakeVideo(intent) { bitmap ->
-                    val intent1 = Intent()
-                    bitmap?.let {
-                        intent1.putExtra("data", it)
-                    }
-                    val activityResult =
-                        ActivityResult(if (bitmap != null) Activity.RESULT_OK else Activity.RESULT_CANCELED, intent1)
-                    callback.onActivityResult(activityResult)
-                }
+                Router.Path.ACTION_TAKE_VIDEO -> routerFragment.navigationTakeVideo(intent, callback)
 
-                Router.Path.ACTION_PICK_CONTACT -> routerFragment.navigationPickContact { uri ->
-                    val intent1 = Intent()
-                    uri?.let {
-                        intent1.data = uri
-                    }
-                    val activityResult =
-                        ActivityResult(if (uri != null) Activity.RESULT_OK else Activity.RESULT_CANCELED, intent1)
-                    callback.onActivityResult(activityResult)
-                }
-
-                Router.Path.ACTION_SEND_EMAIL -> routerFragment.sendEmail(intent, callback)
+                Router.Path.ACTION_PICK_CONTACT -> routerFragment.navigationPickContact(callback)
 
                 Router.Path.ACTION_MAP -> routerFragment.openMap(intent, callback)
 

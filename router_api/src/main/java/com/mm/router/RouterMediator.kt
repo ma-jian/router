@@ -61,16 +61,6 @@ class RouterMediator {
     }
 
     /**
-     * 打开系统功能页面
-     * will open system page
-     * @param path Type to open
-     */
-    fun open(path: Router.Path): RouterBuilder {
-        val meta = RouterMeta.build(RouterType.SYSTEM_ACTIVITY, path.toString(), null)
-        return RouterBuilder(activity, fragment, Intent(), meta)
-    }
-
-    /**
      * 打开指定intent页面
      * will open activity
      * @param intent open intent
@@ -176,9 +166,13 @@ class RouterMediator {
      * find [RouterMeta] by url
      */
     private fun findRouterMeta(url: String): RouterMeta {
-        // 1 是否注册url - class
+        //1 是否系统默认路径
+        if (Router.systemPath.contains(url)) {
+            return RouterMeta.build(RouterType.SYSTEM_ACTIVITY, url, null)
+        }
+        //2 是否注册url - class
         val matchRuleKey = getMatchRuleKey(url)
-        return Router.rules[matchRuleKey] ?: RouterMeta.Companion.build(RouterType.UNKNOWN, null)
+        return Router.rules[matchRuleKey] ?: RouterMeta.build(RouterType.UNKNOWN, null)
     }
 
     /**
@@ -192,7 +186,7 @@ class RouterMediator {
                 }
             }
         }
-        return RouterMeta.Companion.build(RouterType.UNKNOWN, null)
+        return RouterMeta.build(RouterType.UNKNOWN, clazz)
     }
 
 
@@ -202,6 +196,7 @@ class RouterMediator {
      */
     private fun openLocalUrl(context: Context?, meta: RouterMeta?): Intent {
         if (context == null || meta == null) return Intent(Intent.ACTION_VIEW)
+        //1检查类型
         try {
             when (meta.type) {
                 RouterType.ACTIVITY, RouterType.SERVICE -> {
@@ -229,7 +224,8 @@ class RouterMediator {
                 }
 
                 else -> {
-                    return Intent(context, meta.destination).apply {
+                    val intent = meta.destination?.let { Intent(context, it) } ?: Intent()
+                    return intent.apply {
                         getAllQueryParameter(meta.path).forEach {
                             putExtra(it.key, it.value)
                         }

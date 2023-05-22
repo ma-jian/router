@@ -42,7 +42,6 @@ object Router {
         Path.ACTION_TAKE_PICTURE,
         Path.ACTION_TAKE_VIDEO,
         Path.ACTION_PICK_CONTACT,
-        Path.ACTION_SEND_EMAIL,
         Path.ACTION_MAP,
         Path.ACTION_CALL_DIAL,
         Path.ACTION_SEND_SMS,
@@ -55,10 +54,9 @@ object Router {
             const val ACTION_CONTENT = "action_content" //单选相册视频返回已选择Uri ; image/\* video/\*
             const val ACTION_MULTI_CONTENT = "action_multi_content" //多选相册视频返回已选择列表List<Uri> image/\* video/\*
             const val ACTION_TAKE_PIC_PREVIEW = "action_take_pic_preview" //拍照预览 返回Bitmap图
-            const val ACTION_TAKE_PICTURE = "action_take_picture" //拍照预览并保存至文件 返回 Boolean
-            const val ACTION_TAKE_VIDEO = "action_take_video"//拍摄视频并保存至文件 返回bitmap图
+            const val ACTION_TAKE_PICTURE = "action_take_picture" //拍照预览并保存至文件 返回地址
+            const val ACTION_TAKE_VIDEO = "action_take_video"//拍摄视频并保存至文件 返回视频地址
             const val ACTION_PICK_CONTACT = "action_pick_contact" //打开通讯录 返回Uri
-            const val ACTION_SEND_EMAIL = "action_send_email" //发送邮件
             const val ACTION_MAP = "action_map" //打开地图
             const val ACTION_CALL_DIAL = "action_call_dial" //打开电话拨号
             const val ACTION_SEND_SMS = "action_send_sms" //发送短信
@@ -68,6 +66,20 @@ object Router {
         }
     }
 
+    internal val systemPath = arrayListOf(
+        Path.ACTION_CONTENT,
+        Path.ACTION_MULTI_CONTENT,
+        Path.ACTION_TAKE_PIC_PREVIEW,
+        Path.ACTION_TAKE_PICTURE,
+        Path.ACTION_TAKE_VIDEO,
+        Path.ACTION_PICK_CONTACT,
+        Path.ACTION_MAP,
+        Path.ACTION_CALL_DIAL,
+        Path.ACTION_SEND_SMS,
+        Path.ACTION_SHARE,
+        Path.ACTION_MARKET,
+        Path.ACTION_SETTINGS
+    )
     internal const val TAG = "Router_"
 
     /**

@@ -4,10 +4,9 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageInfo
-import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
-import android.text.TextUtils
+import android.provider.Settings
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContract
 import java.util.*
@@ -30,55 +29,6 @@ class ResultContracts private constructor() {
 
             //传递参数 保存路径
             const val PATH = "path"
-        }
-    }
-
-    /**
-     * 发送电子邮件
-     */
-    class SendEmail : ActivityResultContract<Map<String, String>, ActivityResult>() {
-        companion object {
-            const val EXTRA_SUBJECT = "EXTRA_SUBJECT" //包含电子邮件主题的字符串
-            const val EXTRA_TEXT = "EXTRA_TEXT" //包含电子邮件正文的字符串
-            const val EXTRA_EMAIL = "EXTRA_EMAIL" //包含所有“主送”收件人电子邮件地址的字符串数组
-            const val EXTRA_CC = "EXTRA_CC" //包含所有“抄送”收件人电子邮件地址的字符串数组
-            const val EXTRA_STREAM = "EXTRA_STREAM" //指向附件的 Uri
-        }
-
-        override fun createIntent(context: Context, input: Map<String, String>): Intent {
-            val mailTo = input[EXTRA_EMAIL] ?: ""
-            val intent = Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:$mailTo")).apply {
-                type = "text/plain"
-                val subject = input[EXTRA_SUBJECT]
-                if (!TextUtils.isEmpty(subject)) {
-                    putExtra(Intent.EXTRA_SUBJECT, subject)
-                }
-
-                val text = input[EXTRA_TEXT]
-                if (!TextUtils.isEmpty(text)) {
-                    putExtra(EXTRA_TEXT, text)
-                }
-
-                val cc = input[EXTRA_CC] ?: ""
-                if (!TextUtils.isEmpty(cc)) {
-                    val split = cc.split(",")
-                    if (split.isNotEmpty()) {
-                        putExtra(Intent.EXTRA_CC, split.toTypedArray())
-                    }
-                }
-
-                val stream = input[EXTRA_STREAM]
-                if (!TextUtils.isEmpty(stream)) {
-                    putExtra(Intent.EXTRA_STREAM, Uri.parse(stream))
-                }
-            }
-            return if (intent.resolveActivity(context.packageManager) != null) {
-                intent
-            } else Intent(Intent.ACTION_VIEW)
-        }
-
-        override fun parseResult(resultCode: Int, intent: Intent?): ActivityResult {
-            return ActivityResult(resultCode, intent)
         }
     }
 
@@ -261,7 +211,7 @@ class ResultContracts private constructor() {
         }
 
         override fun createIntent(context: Context, input: Map<String, Any>): Intent {
-            return Intent(Intent.ACTION_SEND).apply {
+            return Intent.createChooser(Intent(Intent.ACTION_SEND).apply {
                 type = input[TYPE]?.toString() ?: TEXT
                 if (type == TEXT) {
                     val text = input[EXTRA_TEXT]
@@ -277,7 +227,7 @@ class ResultContracts private constructor() {
                     addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 }
-            }
+            }, "分享")
         }
 
         override fun parseResult(resultCode: Int, intent: Intent?): ActivityResult {
@@ -318,26 +268,37 @@ class ResultContracts private constructor() {
         }
 
         /**
-         * ACTION_SETTINGS 显示系统设置
-         * Settings.ACTION_APPLICATION_DETAILS_SETTINGS
-         * ACTION_WIRELESS_SETTINGS 显示设置以允许配置无线控制，例如 Wi-Fi、蓝牙和移动网络
-         * ACTION_AIRPLANE_MODE_SETTINGS 显示设置以允许进入退出飞行模式
-         * ACTION_WIFI_SETTINGS 显示设置以允许配置 Wi-Fi
-         * ACTION_APN_SETTINGS 显示设置以允许配置 APN
-         * ACTION_BLUETOOTH_SETTINGS 显示设置以允许配置蓝牙
-         * ACTION_DATE_SETTINGS 显示设置以允许配置日期和时间
-         * ACTION_LOCALE_SETTINGS 显示设置以允许配置区域设置
-         * ACTION_INPUT_METHOD_SETTINGS 显示配置输入法的设置，特别是允许用户启用输入法
-         * ACTION_DISPLAY_SETTINGS 显示设置以允许配置显示
-         * ACTION_SECURITY_SETTINGS 显示设置以允许配置安全性和位置隐私
-         * ACTION_LOCATION_SOURCE_SETTINGS 显示设置以允许配置当前位置源
-         * ACTION_INTERNAL_STORAGE_SETTINGS 显示内部存储设置
-         * ACTION_MEMORY_CARD_SETTINGS 显示存储卡存储设置
+         * [Settings.ACTION_SETTINGS] 显示系统设置
+         * [Settings.ACTION_APPLICATION_DETAILS_SETTINGS] app 设置页面
+         * [Settings.ACTION_WIRELESS_SETTINGS] 显示设置以允许配置无线控制，例如 Wi-Fi、蓝牙和移动网络
+         * [Settings.ACTION_AIRPLANE_MODE_SETTINGS] 显示设置以允许进入退出飞行模式
+         * [Settings.ACTION_WIFI_SETTINGS] 显示设置以允许配置 Wi-Fi
+         * [Settings.ACTION_APN_SETTINGS] 显示设置以允许配置 APN
+         * [Settings.ACTION_BLUETOOTH_SETTINGS] 显示设置以允许配置蓝牙
+         * [Settings.ACTION_DATE_SETTINGS] 显示设置以允许配置日期和时间
+         * [Settings.ACTION_LOCALE_SETTINGS] 显示设置以允许配置区域设置
+         * [Settings.ACTION_INPUT_METHOD_SETTINGS] 显示配置输入法的设置，特别是允许用户启用输入法
+         * [Settings.ACTION_DISPLAY_SETTINGS] 显示设置以允许配置显示
+         * [Settings.ACTION_SECURITY_SETTINGS] 显示设置以允许配置安全性和位置隐私
+         * [Settings.ACTION_LOCATION_SOURCE_SETTINGS] 显示设置以允许配置当前位置源
+         * [Settings.ACTION_INTERNAL_STORAGE_SETTINGS] 显示内部存储设置
+         * [Settings.ACTION_MEMORY_CARD_SETTINGS] 显示存储卡存储设置
+         * [Settings.ACTION_APPLICATION_SETTINGS] 应用程序列表
+         * [Settings.ACTION_APP_NOTIFICATION_SETTINGS] APP的通知设置界面
          */
         override fun createIntent(context: Context, input: String): Intent {
-            return Intent(input).apply {
-                data = Uri.parse("package:${context.packageName}")
+            val intent = Intent(input)
+            if (input == Settings.ACTION_APPLICATION_DETAILS_SETTINGS) {
+                intent.data = Uri.parse("package:${context.packageName}")
+            } else if (input == Settings.ACTION_APP_NOTIFICATION_SETTINGS) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    intent.putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
+                } else {
+                    intent.putExtra("app_package", context.packageName)
+                    intent.putExtra("app_uid", context.applicationInfo.uid)
+                }
             }
+            return intent
         }
 
         override fun parseResult(resultCode: Int, intent: Intent?): ActivityResult {

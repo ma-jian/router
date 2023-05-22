@@ -1,10 +1,12 @@
 package com.mm.router
 
 import android.Manifest
+import android.app.Activity
 import android.content.Intent
 import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Build
+import android.os.Environment
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultCallback
 import androidx.activity.result.contract.ActivityResultContracts
@@ -33,7 +35,7 @@ class RouterFragment : Fragment() {
      * launcher of StartActivityForResult
      */
     private val activityLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-        if (checkResultForGC()) {
+        if (checkResultForGC("StartActivityForResult")) {
             resultCallback.onActivityResult(it)
         }
     }
@@ -42,7 +44,7 @@ class RouterFragment : Fragment() {
      * launcher of content:// media
      */
     private val contentLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) {
-        if (checkUriForGC()) {
+        if (checkUriForGC("GetContent")) {
             uriCallback.onActivityResult(it)
         }
     }
@@ -51,7 +53,7 @@ class RouterFragment : Fragment() {
      * launcher of content:// media
      */
     private val multipleContentsLauncher = registerForActivityResult(ActivityResultContracts.GetMultipleContents()) {
-        if (checkListUriForGC()) {
+        if (checkListUriForGC("GetMultipleContents")) {
             listUriCallback.onActivityResult(it)
         }
     }
@@ -61,7 +63,7 @@ class RouterFragment : Fragment() {
      * [MediaStore.ACTION_IMAGE_CAPTURE]  take small a picture preview, returning it as a Bitmap
      */
     private val picPreviewLauncher = registerForActivityResult(ActivityResultContracts.TakePicturePreview()) {
-        if (checkBitmapForGC()) {
+        if (checkBitmapForGC("TakePicturePreview")) {
             bitmapCallback.onActivityResult(it)
         }
     }
@@ -71,7 +73,7 @@ class RouterFragment : Fragment() {
      * [MediaStore.ACTION_IMAGE_CAPTURE] take a picture saving it into the provided content-[Uri].
      */
     private val takePictureLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) {
-        if (checkBooleanForGC()) {
+        if (checkBooleanForGC("TakePicture")) {
             booleanCallback.onActivityResult(it)
         }
     }
@@ -80,9 +82,9 @@ class RouterFragment : Fragment() {
      * launcher of TakeVideo
      * [MediaStore.ACTION_VIDEO_CAPTURE] take a video saving it into the provided content-[Uri].
      */
-    private val takeVideoLauncher = registerForActivityResult(ActivityResultContracts.TakeVideo()) {
-        if (checkBitmapForGC()) {
-            bitmapCallback.onActivityResult(it)
+    private val takeVideoLauncher = registerForActivityResult(ActivityResultContracts.CaptureVideo()) {
+        if (checkBooleanForGC("CaptureVideo")) {
+            booleanCallback.onActivityResult(it)
         }
     }
 
@@ -91,7 +93,7 @@ class RouterFragment : Fragment() {
      * an to request the user to pick a contact from the contacts app.
      */
     private val pickContactLauncher = registerForActivityResult(ActivityResultContracts.PickContact()) {
-        if (checkUriForGC()) {
+        if (checkUriForGC("PickContact")) {
             uriCallback.onActivityResult(it)
         }
     }
@@ -102,17 +104,8 @@ class RouterFragment : Fragment() {
      * requestPermissions
      */
     private val permissionsLauncher = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
-        if (checkMapForGC()) {
+        if (checkMapForGC("RequestMultiplePermissions")) {
             mapBooleanCallback.onActivityResult(it)
-        }
-    }
-
-    /**
-     * launcher of SendEmail
-     */
-    private val sendEmailLauncher = registerForActivityResult(ResultContracts.SendEmail()) {
-        if (checkResultForGC()) {
-            resultCallback.onActivityResult(it)
         }
     }
 
@@ -120,7 +113,7 @@ class RouterFragment : Fragment() {
      * launcher of open map
      */
     private val mapLauncher = registerForActivityResult(ResultContracts.MapIntent()) {
-        if (checkResultForGC()) {
+        if (checkResultForGC("MapIntent")) {
             resultCallback.onActivityResult(it)
         }
     }
@@ -129,7 +122,7 @@ class RouterFragment : Fragment() {
      * launcher of open call
      */
     private val callLauncher = registerForActivityResult(ResultContracts.CallIntent()) {
-        if (checkResultForGC()) {
+        if (checkResultForGC("CallIntent")) {
             resultCallback.onActivityResult(it)
         }
     }
@@ -138,7 +131,7 @@ class RouterFragment : Fragment() {
      * launcher of send Sms
      */
     private val sendSmsLauncher = registerForActivityResult(ResultContracts.SendSMSIntent()) {
-        if (checkResultForGC()) {
+        if (checkResultForGC("SendSMSIntent")) {
             resultCallback.onActivityResult(it)
         }
     }
@@ -147,7 +140,7 @@ class RouterFragment : Fragment() {
      * launcher of send share
      */
     private val shareLauncher = registerForActivityResult(ResultContracts.SendShareIntent()) {
-        if (checkResultForGC()) {
+        if (checkResultForGC("SendShareIntent")) {
             resultCallback.onActivityResult(it)
         }
     }
@@ -156,7 +149,7 @@ class RouterFragment : Fragment() {
      * launcher of open market
      */
     private val marketLauncher = registerForActivityResult(ResultContracts.MarketIntent()) {
-        if (checkResultForGC()) {
+        if (checkResultForGC("MarketIntent")) {
             resultCallback.onActivityResult(it)
         }
     }
@@ -165,7 +158,7 @@ class RouterFragment : Fragment() {
      * launcher of open system settings
      */
     private val settingsLauncher = registerForActivityResult(ResultContracts.SettingsIntent()) {
-        if (checkResultForGC()) {
+        if (checkResultForGC("SettingsIntent")) {
             resultCallback.onActivityResult(it)
         }
     }
@@ -189,9 +182,16 @@ class RouterFragment : Fragment() {
      * @param input The input is the mime type to filter by, e.g."image/\*"
      * @param callback content
      */
-    fun navigationContent(input: Intent, callback: ActivityResultCallback<Uri?>) {
-        this.uriCallback = callback
-        contentLauncher.launch(input.getStringExtra(ResultContracts.Contents.TYPE))
+    fun navigationContent(input: Intent, callback: ActivityResultCallback<ActivityResult>) {
+        this.uriCallback = ActivityResultCallback<Uri?> { uri ->
+            val intent1 = Intent().apply {
+                data = uri
+            }
+            val activityResult =
+                ActivityResult(if (uri != null) Activity.RESULT_OK else Activity.RESULT_CANCELED, intent1)
+            callback.onActivityResult(activityResult)
+        }
+        contentLauncher.launch(input.getStringExtra(ResultContracts.Contents.TYPE) ?: "image/*")
     }
 
     /**
@@ -219,7 +219,7 @@ class RouterFragment : Fragment() {
                 this.bitmapCallback = callback
                 picPreviewLauncher.launch(null)
             } else {
-                Router.LogE("RouterFragment: Permission [android.permission.CAMERA] :$permission")
+                Router.LogE("RouterFragment: no Permission [android.permission.CAMERA]")
                 callback.onActivityResult(null)
             }
         }
@@ -230,43 +230,56 @@ class RouterFragment : Fragment() {
      * open to [MediaStore.ACTION_IMAGE_CAPTURE] take a picture saving it into the provided content-[Uri].
      * 跳转 TakePicture
      * @param intent  saving it into the provided content
-     * @param callback  Returns true if the image was saved into the given [Uri].
+     * @param callback  Returns path if the image was saved into the given [Uri].
      */
-    fun navigationTakePicture(intent: Intent, callback: ActivityResultCallback<Boolean>) {
+    fun navigationTakePicture(intent: Intent, callback: ActivityResultCallback<ActivityResult>) {
         checkPermission(Manifest.permission.CAMERA) {
             val permission = it[Manifest.permission.CAMERA] ?: false
             if (permission) {
-                this.booleanCallback = callback
                 val pic = intent.getStringExtra(ResultContracts.Contents.PATH)
-                    ?: "${requireContext().cacheDir}/picture/${System.currentTimeMillis()}.jpg"
+                    ?: (requireContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES)?.absolutePath + "/take_picture.jpg")
                 val fileUri = fileUri(pic)
+                this.booleanCallback = ActivityResultCallback<Boolean> { bol ->
+                    val intent1 = Intent().apply {
+                        data = fileUri
+                    }
+                    val activityResult =
+                        ActivityResult(if (bol) Activity.RESULT_OK else Activity.RESULT_CANCELED, intent1)
+                    callback.onActivityResult(activityResult)
+                }
                 takePictureLauncher.launch(fileUri)
             } else {
-                Router.LogE("RouterFragment: Permission [android.permission.CAMERA] :$permission")
-                callback.onActivityResult(false)
+                Router.LogE("RouterFragment: no Permission [android.permission.CAMERA]")
+                callback.onActivityResult(ActivityResult(Activity.RESULT_CANCELED, Intent()))
             }
         }
     }
 
     /**
-     * 拍摄视频并保存返回预览图
+     * 拍摄视频并保存返回视频地址
      * open to [MediaStore.ACTION_VIDEO_CAPTURE] take a video saving it into the provided content-[Uri].
      * 跳转 TakePicture
      * @param intent  saving it into the provided content
-     * @param callback  Returns a thumbnail.
+     * @param callback  Returns a path of video.
      */
-    fun navigationTakeVideo(intent: Intent, callback: ActivityResultCallback<Bitmap?>) {
+    fun navigationTakeVideo(intent: Intent, callback: ActivityResultCallback<ActivityResult>) {
         checkPermission(Manifest.permission.CAMERA) {
             val permission = it[Manifest.permission.CAMERA] ?: false
             if (permission) {
-                this.bitmapCallback = callback
                 val video = intent.getStringExtra(ResultContracts.Contents.PATH)
-                    ?: "${requireContext().cacheDir}/video/${System.currentTimeMillis()}.mp4"
+                    ?: (requireContext().getExternalFilesDir(Environment.DIRECTORY_MOVIES)?.absolutePath + "/take_video.mp4")
                 val fileUri = fileUri(video)
+                this.booleanCallback = ActivityResultCallback<Boolean> { bol ->
+                    val intent1 = Intent().apply {
+                        data = fileUri
+                    }
+                    val activityResult = ActivityResult(if (bol) Activity.RESULT_OK else Activity.RESULT_CANCELED, intent1)
+                    callback.onActivityResult(activityResult)
+                }
                 takeVideoLauncher.launch(fileUri)
             } else {
-                Router.LogE("RouterFragment: Permission [android.permission.CAMERA] :$permission")
-                callback.onActivityResult(null)
+                Router.LogE("RouterFragment: no Permission [android.permission.CAMERA]")
+                callback.onActivityResult(ActivityResult(Activity.RESULT_CANCELED, Intent()))
             }
         }
     }
@@ -278,39 +291,24 @@ class RouterFragment : Fragment() {
      * 跳转 PickContact
      * @param callback   The result is a {@code content:} [Uri].
      */
-    fun navigationPickContact(callback: ActivityResultCallback<Uri?>) {
+    fun navigationPickContact(callback: ActivityResultCallback<ActivityResult>) {
         checkPermission(Manifest.permission.READ_CONTACTS) {
             val permission = it[Manifest.permission.READ_CONTACTS] ?: false
             if (permission) {
-                this.uriCallback = callback
+                this.uriCallback = ActivityResultCallback<Uri?> { uri ->
+                    val intent1 = Intent().apply {
+                        data = uri
+                    }
+                    val activityResult =
+                        ActivityResult(if (uri != null) Activity.RESULT_OK else Activity.RESULT_CANCELED, intent1)
+                    callback.onActivityResult(activityResult)
+                }
                 pickContactLauncher.launch(null)
             } else {
-                Router.LogE("RouterFragment: Permission [android.permission.READ_CONTACTS] :$permission")
-                callback.onActivityResult(null)
+                Router.LogE("RouterFragment: no Permission [android.permission.READ_CONTACTS]")
+                callback.onActivityResult(ActivityResult(Activity.RESULT_CANCELED, Intent()))
             }
         }
-    }
-
-    /**
-     * 发送邮件
-     * @param intent
-     */
-    fun sendEmail(intent: Intent, callback: ActivityResultCallback<ActivityResult>) {
-        this.resultCallback = callback
-        val subject = intent.getStringExtra(ResultContracts.SendEmail.EXTRA_SUBJECT) ?: ""
-        val text = intent.getStringExtra(ResultContracts.SendEmail.EXTRA_TEXT) ?: ""
-        val email = intent.getStringExtra(ResultContracts.SendEmail.EXTRA_EMAIL) ?: ""
-        val cc = intent.getStringExtra(ResultContracts.SendEmail.EXTRA_CC) ?: ""
-        val stream = intent.getStringExtra(ResultContracts.SendEmail.EXTRA_STREAM) ?: Uri.EMPTY.toString()
-        sendEmailLauncher.launch(
-            mapOf(
-                ResultContracts.SendEmail.EXTRA_SUBJECT to subject,
-                ResultContracts.SendEmail.EXTRA_TEXT to text,
-                ResultContracts.SendEmail.EXTRA_EMAIL to email,
-                ResultContracts.SendEmail.EXTRA_CC to cc,
-                ResultContracts.SendEmail.EXTRA_STREAM to stream,
-            )
-        )
     }
 
     /**
@@ -433,49 +431,49 @@ class RouterFragment : Fragment() {
         return file
     }
 
-    private fun checkResultForGC(): Boolean {
+    private fun checkResultForGC(str: String): Boolean {
         if (!::resultCallback.isInitialized) {
-            logE("resultCallback")
+            logE("$str resultCallback")
             return false
         }
         return true
     }
 
-    private fun checkUriForGC(): Boolean {
+    private fun checkUriForGC(str: String): Boolean {
         if (!::uriCallback.isInitialized) {
-            logE("uriCallback")
+            logE("$str uriCallback")
             return false
         }
         return true
     }
 
-    private fun checkListUriForGC(): Boolean {
+    private fun checkListUriForGC(str: String): Boolean {
         if (!::listUriCallback.isInitialized) {
-            logE("listUriCallback")
+            logE("$str listUriCallback")
             return false
         }
         return true
     }
 
-    private fun checkBitmapForGC(): Boolean {
+    private fun checkBitmapForGC(str: String): Boolean {
         if (!::bitmapCallback.isInitialized) {
-            logE("bitmapCallback")
+            logE("$str bitmapCallback")
             return false
         }
         return true
     }
 
-    private fun checkBooleanForGC(): Boolean {
+    private fun checkBooleanForGC(str: String): Boolean {
         if (!::booleanCallback.isInitialized) {
-            logE("booleanCallback")
+            logE("$str booleanCallback")
             return false
         }
         return true
     }
 
-    private fun checkMapForGC(): Boolean {
+    private fun checkMapForGC(str: String): Boolean {
         if (!::mapBooleanCallback.isInitialized) {
-            logE("mapBooleanCallback")
+            logE("$str mapBooleanCallback")
             return false
         }
         return true

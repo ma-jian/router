@@ -7,4 +7,4 @@ java {
     targetCompatibility = JavaVersion.VERSION_1_8
 }
 
-apply plugin: "com.vanniktech.maven.publish"
+//apply plugin: "com.vanniktech.maven.publish"
