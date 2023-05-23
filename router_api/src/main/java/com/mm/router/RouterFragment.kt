@@ -3,6 +3,7 @@ package com.mm.router
 import android.Manifest
 import android.app.Activity
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Build
@@ -378,6 +379,7 @@ class RouterFragment : Fragment() {
      * @param intent
      */
     fun openSettings(intent: Intent, callback: ActivityResultCallback<ActivityResult>): Boolean {
+        intent.action = intent.getStringExtra(ResultContracts.SettingsIntent.SETTINGS_ACTION)
         return checkIntent(intent) {
             this.resultCallback = callback
             settingsLauncher.launch(intent.getStringExtra(ResultContracts.SettingsIntent.SETTINGS_ACTION))
@@ -390,7 +392,9 @@ class RouterFragment : Fragment() {
      * @param intent
      */
     private fun checkIntent(intent: Intent, block: () -> Unit): Boolean {
-        return if (requireActivity().packageManager.resolveActivity(intent, 0) != null) {
+        return if (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+            requireActivity().packageManager.resolveActivity(intent, PackageManager.ResolveInfoFlags.of(PackageManager.MATCH_DEFAULT_ONLY.toLong())) != null
+            else requireActivity().packageManager.resolveActivity(intent,PackageManager.MATCH_DEFAULT_ONLY) != null) {
             block.invoke()
             true
         } else false

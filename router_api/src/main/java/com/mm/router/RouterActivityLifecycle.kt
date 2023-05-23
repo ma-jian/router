@@ -3,7 +3,6 @@ package com.mm.router
 import android.app.Activity
 import android.app.Application
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.FragmentActivity
 import java.lang.ref.WeakReference
 import java.util.ServiceLoader
