@@ -56,6 +56,7 @@ class MainActivity : FragmentActivity() {
         stringBuilder.append("\n\n").append(provider?.message())
         textView.text = stringBuilder
 
+        //startActivityForResult
         findViewById<View>(R.id.open_second).setOnClickListener {
             Router.init().open("com.mm.second").withString("string", editText.text.toString()).withInt("age", 100)
                 .withBoolean("bol", true).navigation() {

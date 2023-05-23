@@ -2,6 +2,8 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:focusable="true"
+    android:focusableInTouchMode="true"
     android:orientation="vertical"
     android:paddingBottom="20dp">
 
@@ -110,6 +112,13 @@
             android:layout_weight="1"
             android:text="打开地图" />
 
+        <Button
+            android:id="@+id/open_market"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="应用市场" />
+
     </LinearLayout>
 
     <LinearLayout
@@ -141,34 +150,17 @@
 
     </LinearLayout>
 
-    <LinearLayout
+    <Spinner
+        android:id="@+id/spinner"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_gravity="center_horizontal"
+        android:gravity="center_horizontal" />
+
+    <Button
+        android:id="@+id/open_settings"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
-        android:orientation="horizontal">
-
-        <Button
-            android:id="@+id/open_market"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="应用市场" />
-
-        <Button
-            android:id="@+id/open_settings"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="打开系统页面" />
-
-        <Spinner
-            android:id="@+id/spinner"
-            android:layout_width="0dp"
-            android:layout_height="40dp"
-            android:layout_gravity="end"
-            android:layout_weight="1"
-            android:gravity="center_horizontal" />
-
-    </LinearLayout>
+        android:text="打开系统页面" />
 
 </LinearLayout>
