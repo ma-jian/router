@@ -26,15 +26,44 @@ class MainActivity : FragmentActivity() {
 
     @Autowired
     @JvmField
-    var string: String = ""
+    var age1: Int = 0
+
+    @Autowired
+    @JvmField
+    var bol: Boolean = false
+
+    @Autowired
+    @JvmField
+    var bol1: Boolean? = false
 
     @Autowired(name = "name")
     @JvmField
-    var name: String = ""
+    var name: String? = ""
+
+    @Autowired(name = "string")
+    @JvmField
+    var name2: String = ""
 
     @Autowired(name = "long")
     @JvmField
-    var log: Long = 0
+    var log: Long? = 0
+
+    @Autowired(name = "long")
+    @JvmField
+    var log1: Long = 0
+
+    @Autowired(name = "long")
+    @JvmField
+    var dou: Double = 0.0
+
+    @Autowired(name = "long", required = true)
+    @JvmField
+    var dou1: Double? = 0.0
+
+    @Autowired
+    var bean: SeriaBean? = null
+    @Autowired
+    var bean1: ParaBean = ParaBean()
 
     lateinit var textView: TextView
 
@@ -49,7 +78,7 @@ class MainActivity : FragmentActivity() {
         textView = findViewById<TextView>(R.id.message)
         val editText = findViewById<EditText>(R.id.edit)
         val stringBuilder = StringBuilder()
-        stringBuilder.append("age:$age; string:$string; name:$name; long $log")
+        stringBuilder.append("age:$age; string:$name2; name:$name; long $log")
         textView.text = stringBuilder
 
         val provider = Router.init().open(IServiceProvider::class.java).doProvider<IServiceProvider>()

@@ -8,7 +8,7 @@ import com.mm.annotation.ServiceProvider
 /**
  * Date : 2023/5/18
  */
-@ServiceProvider(returnType = IServiceProvider::class, params = [])
+@ServiceProvider(returnType = IServiceProvider::class, params = [String::class, Int::class])
 class ServiceProvider : IServiceProvider {
     private lateinit var context: Context
 

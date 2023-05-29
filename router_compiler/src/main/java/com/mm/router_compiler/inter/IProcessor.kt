@@ -14,7 +14,6 @@ interface IProcessor {
         const val FRAGMENT = "android.app.Fragment"
         const val SERVICE = "android.app.Service"
         const val ISYRINGE = "com.mm.router.ISyringe"
-        const val TYPE_WRAPPER = "com.mm.router.TypeWrapper"
         const val IPROVIDER = "com.mm.router.IProvider"
     }
 

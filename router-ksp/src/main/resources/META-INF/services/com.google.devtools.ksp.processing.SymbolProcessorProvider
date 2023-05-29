@@ -1,0 +1,4 @@
+com.mm.router_ksp.AutowiredProcessorProvider
+com.mm.router_ksp.ProviderProcessorProvider
+com.mm.router_ksp.RouterProcessorProvider
+com.mm.router_ksp.auto.AutoServiceSymbolProcessorProvider

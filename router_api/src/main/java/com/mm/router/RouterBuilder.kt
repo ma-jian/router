@@ -248,20 +248,23 @@ class RouterBuilder(
 
             else -> {
                 if (meta.destination == null) return null
-                val any = if (meta.params.isEmpty()) {
-                    val constructor = meta.destination!!.getDeclaredConstructor()
-                    constructor.isAccessible = true
-                    constructor.newInstance()
-                } else {
-                    val constructor = meta.destination!!.getDeclaredConstructor(*meta.params)
-                    constructor.isAccessible = true
-                    constructor.newInstance(args)
-                }
                 try {
+                    val any = if (meta.params.isEmpty()) {
+                        val constructor = meta.destination!!.getDeclaredConstructor()
+                        constructor.isAccessible = true
+                        constructor.newInstance()
+                    } else {
+                        val constructor = meta.destination!!.getDeclaredConstructor(*meta.params)
+                        constructor.isAccessible = true
+                        constructor.newInstance(args)
+                    }
                     if (any is IProvider) {
                         any.init(componentActivity)
                     }
                     return any as T
+                } catch (e: NoSuchMethodException) {
+                    Router.LogE("The current class is of type ${meta.destination} and the implementation class could not be found.")
+                    return null
                 } catch (e: Exception) {
                     throw IllegalArgumentException("The current path is of type${intent.action}, check whether the generic parameters are correct")
                 }
