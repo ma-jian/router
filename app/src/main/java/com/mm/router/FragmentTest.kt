@@ -48,9 +48,11 @@ class FragmentTest : Fragment() {
     var dou1: Double? = 0.0
 
     @Autowired(name = "bean")
+    @JvmField
     var bean: SeriaBean = SeriaBean()
 
     @Autowired(name = "bean")
+    @JvmField
     var bean1: ParaBean? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

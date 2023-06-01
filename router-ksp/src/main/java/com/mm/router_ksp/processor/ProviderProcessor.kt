@@ -12,9 +12,9 @@ import com.google.devtools.ksp.symbol.KSFile
 import com.mm.annotation.ServiceProvider
 import com.mm.annotation.model.RouterMeta
 import com.mm.annotation.model.RouterType
+import com.mm.router_ksp.utils.IPROVIDER
 import com.mm.router_ksp.utils.IROUTER_CREATOR
 import com.mm.router_ksp.utils.findModuleName
-import com.mm.router_ksp.utils.pairParams
 import com.mm.router_ksp.utils.pairServices
 import com.mm.router_ksp.utils.pairString
 import com.mm.router_ksp.utils.quantifyNameToClassName
@@ -73,29 +73,25 @@ class ProviderProcessor(private val logger: KSPLogger, private val codeGenerator
             }
             val qualifiedName = it.qualifiedName?.asString() ?: error("local variable can not be annotated with @ServiceProvider")
             packageName = qualifiedName.substring(0, qualifiedName.lastIndexOf("."))
-            val services = it.pairServices("returnType")
-            val params = it.pairParams("params")
-            val des = it.pairString("des")
-            val returnType = services.declaration.qualifiedName!!.asString()
-
-            val builder = StringBuilder("arrayOf(")
-            params.forEachIndexed { index, ksType ->
-                builder.append("${ksType.declaration.simpleName.asString()}::class.java")
-                if (index < params.size - 1) {
-                    builder.append(",")
+            if (it.routeType == RouterType.PROVIDER) {
+                val services = it.pairServices("returnType")
+                val des = it.pairString("des")
+                val returnType = services.declaration.qualifiedName!!.asString()
+                funSpecBuild.addStatement(
+                    "rules.put(%S, %T.build(%T.${it.routeType},%S,%T::class.java,%S))",
+                    returnType,
+                    RouterMeta::class,
+                    RouterType::class,
+                    returnType,
+                    it.qualifiedName!!.asString().quantifyNameToClassName(),
+                    des
+                )
+                if (des.isNotEmpty()) {
+                    funSpecBuild.addKdoc(CodeBlock.of(des))
                 }
+            } else {
+                throw RuntimeException("The @ServiceProvider is marked on unsupported class, look at [$qualifiedName]. this must inherit $IPROVIDER")
             }
-            builder.append(")")
-            funSpecBuild.addStatement(
-                "rules.put(%S, %T.build(%T.${it.routeType},%S,%T::class.java,%S,%L))",
-                returnType,
-                RouterMeta::class,
-                RouterType::class,
-                returnType,
-                it.qualifiedName!!.asString().quantifyNameToClassName(),
-                des,
-                builder.toString()
-            )
             it.containingFile?.let { file ->
                 groupFileDependencies.add(file)
             }

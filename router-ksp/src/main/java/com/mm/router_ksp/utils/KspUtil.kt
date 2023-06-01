@@ -152,7 +152,7 @@ fun KSClassDeclaration.pairParams(name: String): List<KSType> {
         it.shortName.asString() == ServiceProvider::class.java.simpleName && it.annotationType.resolve().declaration
             .qualifiedName?.asString() == ServiceProvider::class.java.canonicalName
     }
-    return provider?.arguments?.find { it.name!!.getShortName() == name }?.value as List<KSType>
+    return provider?.arguments?.find { it.name!!.getShortName() == name }!!.value as List<KSType>
 }
 
 fun KSClassDeclaration.pairString(name: String): String {

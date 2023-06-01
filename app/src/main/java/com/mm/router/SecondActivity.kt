@@ -10,7 +10,7 @@ import com.mm.annotation.Autowired
 import com.mm.annotation.RouterPath
 
 
-@RouterPath("com.mm.second")
+@RouterPath("com.mm.second", interceptor = ["/router/path/match"])
 class SecondActivity : FragmentActivity() {
 
     @Autowired(name = "age")

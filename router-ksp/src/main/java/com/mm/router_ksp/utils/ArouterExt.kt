@@ -28,6 +28,7 @@ const val SERVICE = "android.app.Service"
 const val ISYRINGE = "com.mm.router.ISyringe"
 const val IPROVIDER = "com.mm.router.IProvider"
 const val IROUTER_CREATOR = "com.mm.router.IRouterRulesCreator"
+const val INTERCEPTOR_CREATOR = "com.mm.router.IRouterInterceptor"
 
 const val KEY_MODULE_NAME = "moduleName"
 
@@ -66,7 +67,6 @@ internal fun KSPropertyDeclaration.typeExchange(): Int {
  *  " ksp { arg("moduleName", project.getName()) } "
  *  in your module's build.gradle
  * */
-@Suppress("SpellCheckingInspection")
 internal fun Map<String, String>.findModuleName(logger: KSPLogger): String {
     val name = this[KEY_MODULE_NAME]
     return if (!name.isNullOrEmpty()) {

@@ -8,8 +8,11 @@ import com.mm.annotation.ServiceProvider
 /**
  * Date : 2023/5/18
  */
-@ServiceProvider(returnType = IServiceProvider::class, params = [String::class, Int::class])
-class ServiceProvider : IServiceProvider {
+@ServiceProvider(returnType = IServiceProvider::class)
+class ServiceProvider constructor() : IServiceProvider {
+
+    constructor(string: String, int: Int, log: Long, string1: String) : this()
+
     private lateinit var context: Context
 
     override fun init(context: Context) {

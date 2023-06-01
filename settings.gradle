@@ -1,8 +1,8 @@
 rootProject.name = "Router"
 
 include ':app'
-include ':router_api'
-include ':router_annotation'
-include ':router_compiler'
+include ':router-api'
+include ':router-annotation'
+include ':router-compiler'
 include ':lib'
 include ':router-ksp'

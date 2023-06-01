@@ -1,0 +1,17 @@
+plugins {
+    id 'java-library'
+    id 'org.jetbrains.kotlin.jvm'
+    id 'kotlin-kapt'
+}
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}
+
+dependencies {
+    implementation project(':router-annotation')//    implementation "io.github.ma-jian:router-annotation:1.0"
+    implementation 'com.google.auto.service:auto-service:1.0.1'
+    kapt 'com.google.auto.service:auto-service:1.0.1'
+    implementation 'com.squareup:javapoet:1.13.0'
+}
+//apply plugin: "com.vanniktech.maven.publish"

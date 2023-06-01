@@ -17,7 +17,7 @@ import com.mm.annotation.Autowired
 import com.mm.annotation.RouterPath
 
 
-@RouterPath("com.mm.main")
+@RouterPath("com.mm.main", interceptor = ["router"])
 class MainActivity : FragmentActivity() {
 
     @Autowired
@@ -61,8 +61,11 @@ class MainActivity : FragmentActivity() {
     var dou1: Double? = 0.0
 
     @Autowired
+    @JvmField
     var bean: SeriaBean? = null
+
     @Autowired
+    @JvmField
     var bean1: ParaBean = ParaBean()
 
     lateinit var textView: TextView
@@ -81,7 +84,7 @@ class MainActivity : FragmentActivity() {
         stringBuilder.append("age:$age; string:$name2; name:$name; long $log")
         textView.text = stringBuilder
 
-        val provider = Router.init().open(IServiceProvider::class.java).doProvider<IServiceProvider>()
+        val provider = Router.init().open(IServiceProvider::class.java).doProvider<IServiceProvider>("a", 1, 1, "ad")
         stringBuilder.append("\n\n").append(provider?.message())
         textView.text = stringBuilder
 
