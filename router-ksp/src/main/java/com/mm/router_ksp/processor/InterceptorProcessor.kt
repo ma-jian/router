@@ -86,9 +86,6 @@ class InterceptorProcessor(
                 it.qualifiedName!!.asString().quantifyNameToClassName(),
                 interceptor.des
             )
-            if (interceptor.des.isNotEmpty()) {
-                funSpecBuild.addKdoc(CodeBlock.of(interceptor.des))
-            }
             it.containingFile?.let { file ->
                 groupFileDependencies.add(file)
             }

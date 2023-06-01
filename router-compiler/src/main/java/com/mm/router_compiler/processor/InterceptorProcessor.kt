@@ -67,9 +67,6 @@ class InterceptorProcessor : IProcessor {
                     typeElement.asType(),
                     router.des
                 )
-                if (router.des.isNotEmpty()) {
-                    methodSpecBuilder.addJavadoc(CodeBlock.of(router.des))
-                }
             }
             val methodSpec: MethodSpec = methodSpecBuilder.build()
             val moduleName = abstractProcessor.moduleName

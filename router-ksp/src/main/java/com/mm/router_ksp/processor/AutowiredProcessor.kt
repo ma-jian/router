@@ -97,9 +97,6 @@ class AutowiredProcessor(private val logger: KSPLogger, private val codeGenerato
                     )
                     funSpecBuild.endControlFlow()
                 }
-                if (autowired.des.isNotEmpty()) {
-                    funSpecBuild.addKdoc(CodeBlock.of(autowired.des))
-                }
             }
             typeSpecBuild.addFunction(funSpecBuild.build())
             key.containingFile?.let {

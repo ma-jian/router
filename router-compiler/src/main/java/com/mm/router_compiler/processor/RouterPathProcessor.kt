@@ -107,9 +107,6 @@ class RouterPathProcessor : IProcessor {
                     typeElement,
                     router.des
                 )
-                if (router.des.isNotEmpty()) {
-                    methodSpecBuilder.addJavadoc(CodeBlock.of(router.des))
-                }
             }
             val methodSpec: MethodSpec = methodSpecBuilder.build()
             val moduleName = abstractProcessor.moduleName

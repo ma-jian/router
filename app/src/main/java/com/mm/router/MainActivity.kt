@@ -17,7 +17,7 @@ import com.mm.annotation.Autowired
 import com.mm.annotation.RouterPath
 
 
-@RouterPath("com.mm.main", interceptor = ["router"])
+@RouterPath("com.mm.main", interceptor = ["router"], des = "主页面")
 class MainActivity : FragmentActivity() {
 
     @Autowired
@@ -36,11 +36,11 @@ class MainActivity : FragmentActivity() {
     @JvmField
     var bol1: Boolean? = false
 
-    @Autowired(name = "name")
+    @Autowired(name = "name", des = "用户名称")
     @JvmField
     var name: String? = ""
 
-    @Autowired(name = "string")
+    @Autowired(name = "string",des = "用户名称1")
     @JvmField
     var name2: String = ""
 

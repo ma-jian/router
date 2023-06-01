@@ -77,9 +77,6 @@ class ServiceProviderProcessor : IProcessor {
                             provider.des
                         )
                     )
-                    if (provider.des.isNotEmpty()) {
-                        methodSpecBuilder.addJavadoc(CodeBlock.of(provider.des))
-                    }
                 } else {
                     throw RuntimeException("The @ServiceProvider is marked on unsupported class, look at [$tm]. this must inherit $iProvider")
                 }

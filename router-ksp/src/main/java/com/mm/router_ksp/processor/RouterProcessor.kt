@@ -90,9 +90,6 @@ class RouterProcessor(private val logger: KSPLogger, private val codeGenerator: 
                 it.qualifiedName!!.asString().quantifyNameToClassName(),
                 route.des
             )
-            if (route.des.isNotEmpty()) {
-                funSpecBuild.addKdoc(CodeBlock.of(route.des))
-            }
             it.containingFile?.let { file ->
                 groupFileDependencies.add(file)
             }

@@ -44,7 +44,7 @@ dependencies {
     api "androidx.core:core-ktx:1.10.0"
     api "androidx.appcompat:appcompat:1.6.1"
     implementation project(":router-api")
-    kapt project(":router-compiler")
+    ksp project(":router-ksp")
 //    implementation 'io.github.ma-jian:router-api:1.0.2-SNAPSHOT'
 //    ksp 'io.github.ma-jian:router-ksp:1.0.2-SNAPSHOT'
     testImplementation 'junit:junit:4.13.2'

@@ -11,7 +11,7 @@ enum class RouterType(val int: Int, val className: String) {
 
     SERVICE(1, "android.app.Service"),
 
-    PROVIDER(2, "com.mm.annotation.ServiceProvider"),
+    PROVIDER(2, "com.mm.router.IProvider"),
 
     FRAGMENT(3, "android.app.Fragment"),
 

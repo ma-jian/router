@@ -104,9 +104,6 @@ class AutowiredProcessor : IProcessor {
                         )
                         injectMethodBuilder.endControlFlow()
                     }
-                    if (fieldConfig.des.isNotEmpty()) {
-                        injectMethodBuilder.addJavadoc(CodeBlock.of(fieldConfig.des))
-                    }
                 }
                 helper.addMethod(injectMethodBuilder.build())
                 JavaFile.builder(packageName, helper.build()).build().writeTo(filer)

@@ -8,7 +8,7 @@ import com.mm.annotation.interceptor.Interceptor
 /**
  * Date : 2023/5/30
  */
-@RouterInterceptor("/router/path/match", priority = 1)
+@RouterInterceptor("/router/path/match", priority = 1, des = "路由拦截器")
 class PathInterceptor : Interceptor {
 
     override fun intercept(chain: Interceptor.Chain) {

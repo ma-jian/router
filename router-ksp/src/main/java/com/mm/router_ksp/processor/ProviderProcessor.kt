@@ -85,9 +85,6 @@ class ProviderProcessor(private val logger: KSPLogger, private val codeGenerator
                     it.qualifiedName!!.asString().quantifyNameToClassName(),
                     des
                 )
-                if (des.isNotEmpty()) {
-                    funSpecBuild.addKdoc(CodeBlock.of(des))
-                }
             } else {
                 throw RuntimeException("The @ServiceProvider is marked on unsupported class, look at [$qualifiedName]. this must inherit $IPROVIDER")
             }
