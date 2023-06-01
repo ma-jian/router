@@ -18,6 +18,9 @@ import java.io.IOException
 import java.util.SortedSet
 import java.util.TreeSet
 
+/**
+ * 使用注解 @AutoService 自动生成 META-INF/services/ 文件
+ */
 @AutoService(SymbolProcessorProvider::class)
 class AutoServiceSymbolProcessorProvider : SymbolProcessorProvider {
     override fun create(environment: SymbolProcessorEnvironment): SymbolProcessor =

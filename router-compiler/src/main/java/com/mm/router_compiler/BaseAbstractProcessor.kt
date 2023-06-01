@@ -1,12 +1,6 @@
 package com.mm.router_compiler
 
-import com.google.common.collect.HashMultimap
-import com.google.common.collect.Multimap
-import com.google.common.collect.Sets
-import com.mm.router_compiler.util.ServicesFiles
 import com.mm.router_compiler.util.TypeUtils
-import java.io.IOException
-import java.util.SortedSet
 import javax.annotation.processing.AbstractProcessor
 import javax.annotation.processing.Filer
 import javax.annotation.processing.Messager
@@ -15,7 +9,6 @@ import javax.lang.model.SourceVersion
 import javax.lang.model.util.Elements
 import javax.lang.model.util.Types
 import javax.tools.Diagnostic
-import javax.tools.StandardLocation
 
 
 /**
@@ -28,8 +21,6 @@ abstract class BaseAbstractProcessor : AbstractProcessor() {
     lateinit var mTypes: Types
     lateinit var mTypeUtils: TypeUtils
     var moduleName: String = ""
-
-    internal val providers: Multimap<String, String> = HashMultimap.create()
 
     override fun init(processingEnv: ProcessingEnvironment) {
         super.init(processingEnv)

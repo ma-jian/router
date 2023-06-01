@@ -25,13 +25,15 @@ import com.mm.annotation.model.RouterMeta
  *
  * 4、支持通过 [RouterMediator.open] 打开intent
  *
- * 5、默认提供的系统页面 [RouterMediator.open]
+ * 5、默认提供的系统页面 [Router.Path]
+ *
+ * 6、支持通过[com.mm.annotation.RouterInterceptor] 添加路由拦截器
  *
  * @since 1.0 Activity 跳转升级为 Activity Result API 的方式
  */
 object Router {
     /**
-     * Router默认提供系统功能
+     * Router默认提供的系统功能
      *
      * Router.init(this).open(Router.Path.ACTION_CONTENT).navigation()
      */
@@ -52,8 +54,8 @@ object Router {
     )
     annotation class Path {
         companion object {
-            const val ACTION_CONTENT = "action_content" //单选相册视频返回已选择Uri ; image/\* video/\*
-            const val ACTION_MULTI_CONTENT = "action_multi_content" //多选相册视频返回已选择列表List<Uri> image/\* video/\*
+            const val ACTION_CONTENT = "action_content" //单选相册视频返回已选择Uri ; image\* video\*
+            const val ACTION_MULTI_CONTENT = "action_multi_content" //多选相册视频返回已选择列表List<Uri> image\* video\*
             const val ACTION_TAKE_PIC_PREVIEW = "action_take_pic_preview" //拍照预览 返回Bitmap图
             const val ACTION_TAKE_PICTURE = "action_take_picture" //拍照预览并保存至文件 返回地址
             const val ACTION_TAKE_VIDEO = "action_take_video"//拍摄视频并保存至文件 返回视频地址
@@ -67,6 +69,9 @@ object Router {
         }
     }
 
+    /**
+     * 默认支持的系统跳转路径
+     */
     internal val systemPath = arrayListOf(
         Path.ACTION_CONTENT,
         Path.ACTION_MULTI_CONTENT,
@@ -81,10 +86,12 @@ object Router {
         Path.ACTION_MARKET,
         Path.ACTION_SETTINGS
     )
+
     internal const val TAG = "Router_"
 
     /**
      * A collection of storage rules
+     *
      * url --- activity clazz 映射
      */
     internal val rules = HashMap<String, RouterMeta>()
@@ -117,6 +124,7 @@ object Router {
 
     /**
      * Init Router to make everything prepare to work.
+     *
      * user current task topActivity
      */
     @JvmStatic
@@ -149,7 +157,7 @@ object Router {
     /**
      * add router interceptor for annotation [com.mm.annotation.RouterInterceptor]
      *
-     * @param creator spi RouterCreator
+     * @param interceptor spi RouterInterceptor
      */
     @JvmStatic
     fun addRouterInterceptors(interceptor: IRouterInterceptor) {

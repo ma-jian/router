@@ -62,7 +62,7 @@ class MainActivity : FragmentActivity() {
 
     @Autowired
     @JvmField
-    var bean: SeriaBean? = null
+    var bean: SerBean? = null
 
     @Autowired
     @JvmField

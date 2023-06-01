@@ -49,7 +49,7 @@ class FragmentTest : Fragment() {
 
     @Autowired(name = "bean")
     @JvmField
-    var bean: SeriaBean = SeriaBean()
+    var bean: SerBean = SerBean()
 
     @Autowired(name = "bean")
     @JvmField
@@ -63,9 +63,9 @@ class FragmentTest : Fragment() {
         arguments?.getSerializable("")
 
         val extra = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            arguments?.getSerializable("bean", SeriaBean::class.java)
+            arguments?.getSerializable("bean", SerBean::class.java)
         } else {
-            arguments?.getSerializable("bean") as SeriaBean
+            arguments?.getSerializable("bean") as SerBean
         }
     }
 }

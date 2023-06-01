@@ -4,8 +4,8 @@ import com.mm.router.IProvider
 
 
 /**
- * Date : 2023/5/17
  * 自动绑定数据服务接口
+ * @since 1.0
  */
 interface AutowiredService : IProvider {
 

@@ -8,8 +8,8 @@ import java.lang.ref.WeakReference
 import java.util.ServiceLoader
 
 /**
- * @since 1.0
  * Describe : activity生命周期监听代理
+ * @since 1.0
  */
 
 internal class RouterActivityLifecycle private constructor(application: Application) : Application.ActivityLifecycleCallbacks {
@@ -57,6 +57,7 @@ internal class RouterActivityLifecycle private constructor(application: Applicat
         var delegate: WeakReference<RouterActivityLifecycle> = WeakReference(null)
 
         /**
+         * spi注册搜集路由和拦截器
          * @param application
          */
         fun register(application: Application) = RouterActivityLifecycle(application).apply {
@@ -64,7 +65,7 @@ internal class RouterActivityLifecycle private constructor(application: Applicat
             //自动注册路由器
             val loader = ServiceLoader.load(IRouterRulesCreator::class.java)
             for (aLoader in loader) Router.addRouterRule(aLoader)
-            //自动注册路由器
+            //自动注册拦截器
             val interceptors = ServiceLoader.load(IRouterInterceptor::class.java)
             for (inter in interceptors) Router.addRouterInterceptors(inter)
         }

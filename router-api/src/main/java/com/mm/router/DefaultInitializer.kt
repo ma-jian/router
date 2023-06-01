@@ -7,8 +7,8 @@ import android.database.Cursor
 import android.net.Uri
 
 /**
- * @since 1.0
  * 为[RouterActivityLifecycle]提供默认初始化
+ * @since 1.0
  */
 internal class DefaultInitializer : ContentProvider() {
     override fun onCreate(): Boolean {

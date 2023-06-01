@@ -16,9 +16,11 @@ import com.mm.router.service.AutowiredService
 
 /**
  * Created by : m
- * Date : 2022/3/23
+
  * 匹配处理需要打开的url地址
+ *
  * URL address to be opened activity for matching processing
+ *
  * @since 1.0
  */
 
@@ -62,7 +64,8 @@ class RouterMediator {
 
     /**
      * 打开指定intent页面
-     * will open activity
+     *
+     * will open activity by intent
      * @param intent open intent
      */
     fun open(intent: Intent): RouterBuilder {
@@ -75,8 +78,9 @@ class RouterMediator {
     }
 
     /**
-     * 打开指定页面
-     * will open activity
+     * 打开指定[ComponentName]页面
+     *
+     * will open activity by ComponentName
      * @param componentName a ComponentName to be opened
      */
     fun open(componentName: ComponentName): RouterBuilder {
@@ -91,8 +95,9 @@ class RouterMediator {
     }
 
     /**
-     * 打开指定页面
-     * will open activity
+     * 打开指定[RouterMeta.path]页面
+     *
+     * will open activity by path
      * @param url an address to be opened
      */
     fun open(url: String): RouterBuilder {
@@ -102,7 +107,7 @@ class RouterMediator {
     }
 
     /**
-     * 打开页面或者获取指定 Provider
+     * 打开Activity页面或者获取[com.mm.annotation.ServiceProvider]标记的接口
      * @param clazz
      */
     fun open(clazz: Class<*>): RouterBuilder {
@@ -113,6 +118,7 @@ class RouterMediator {
 
     /**
      * 打开指定页面,支持从app后台启动
+     *
      * will open activity, It can be opened from the app background
      * @param url an address to be opened
      */
@@ -209,18 +215,15 @@ class RouterMediator {
                     getAllQueryParameter(meta.path).forEach {
                         intent.putExtra(it.key, it.value)
                     }
-                    // 3 拦截器处理
                     return intent
                 }
 
                 RouterType.FRAGMENT, RouterType.PROVIDER -> {
-                    val intent = Intent(context, meta.destination).apply {
+                    return Intent(context, meta.destination).apply {
                         getAllQueryParameter(meta.path).forEach {
                             putExtra(it.key, it.value)
                         }
                     }
-                    // 3 拦截器处理
-                    return intent
                 }
 
                 else -> {
@@ -239,7 +242,7 @@ class RouterMediator {
     }
 
     /**
-     * matching rules
+     * matching path rules
      * @param url path of page
      */
     private fun getMatchRuleKey(url: String?): String {

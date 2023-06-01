@@ -2,11 +2,12 @@ package com.mm.annotation.model
 
 
 /**
- * Date : 2023/5/17
- * @param type Type of route
- * @param path Path of route
+ * 路由实体类
+ * @param type Type of router
+ * @param path Path of router
  * @param destination  destination class
  * @param des desc
+ * @param interceptors 页面使用的拦截器，为空则全部使用
  */
 class RouterMeta private constructor(
     val type: RouterType,

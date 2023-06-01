@@ -4,7 +4,6 @@ import android.Manifest
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.content.res.Resources.NotFoundException
 import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Build
@@ -19,9 +18,9 @@ import java.io.File
 
 /**
  * Created by : m
- * Date : 2022/3/23
+ *
  * An invisible fragment to embedded into activity for handling ActivityResultLauncher requests.
- * @since 1.1
+ * @since 1.0
  */
 
 class RouterFragment : Fragment() {

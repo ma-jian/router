@@ -3,8 +3,10 @@ package com.mm.router.interceptor
 import com.mm.annotation.interceptor.Interceptor
 import com.mm.annotation.model.RouterMeta
 
+
 /**
- * 拦截器处理器
+ * 拦截器接口逻辑处理器,自动执行和处理所有拦截器请求
+ * @since 1.0.2
  */
 class RealInterceptorChain(
     private inline val router: RouterMeta,

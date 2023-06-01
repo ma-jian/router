@@ -2,7 +2,7 @@ package com.mm.annotation.model
 
 
 /**
- * Date : 2023/5/17
+ * 路由的类型
  * @since 1.0 open router types
  */
 enum class RouterType(val int: Int, val className: String) {

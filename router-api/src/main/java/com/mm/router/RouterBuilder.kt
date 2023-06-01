@@ -21,12 +21,12 @@ import java.lang.reflect.Type
 
 /**
  * Created by : m
- * Date : 2022/3/23
+ *
  * Process the data and open the specified page with result API
+ *
  * 处理数据并利用 Result Api 打开指定页面
  * @since 1.0
  */
-
 class RouterBuilder(
     activity: FragmentActivity?, fragment: Fragment?, intent: Intent, meta: RouterMeta
 ) {
@@ -187,9 +187,9 @@ class RouterBuilder(
     }
 
     /**
-     * Launch the navigation by type
+     * get the provider by type
      * @param args 构造参数
-     * @return 返回
+     * @return 返回服务实体类
      */
     fun <T> doProvider(vararg args: Any): T? {
         return distributeRouter(meta, null, *args)
@@ -197,6 +197,7 @@ class RouterBuilder(
 
     /**
      * 路由跳转到指定页面
+     *
      * execute route and jump to the specified page
      */
     fun navigation(): Boolean {
@@ -209,6 +210,7 @@ class RouterBuilder(
 
     /**
      * 执行路由跳转到指定页面并返回结果
+     *
      * execute the route, jump to the specified page and return the result
      * @param callback the activity result callback
      */

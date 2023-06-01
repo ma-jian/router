@@ -86,7 +86,6 @@ class RouterPathProcessor : IProcessor {
                     // Service
                     routerType = RouterType.SERVICE
                 } else {
-//                    routerType = RouterType.UNKNOWN
                     throw RuntimeException("The @Router is marked on unsupported class, look at [$tm].")
                 }
 
@@ -97,8 +96,8 @@ class RouterPathProcessor : IProcessor {
                         builder.append(",")
                     }
                 }
-                info(">>> router :${router.value} : ${router.interceptor} : ${router.des} <<<")
                 builder.append("}")
+
                 methodSpecBuilder.addStatement(
                     "rules.put(\$S, \$T.build(\$T.$routerType, \$S, \$T.class, \$S, ${builder}))",
                     router.value,

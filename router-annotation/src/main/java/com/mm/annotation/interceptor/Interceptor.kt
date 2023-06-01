@@ -4,7 +4,7 @@ import com.mm.annotation.model.RouterMeta
 
 
 /**
- * 拦截器接口
+ * 路由拦截器接口
  */
 fun interface Interceptor {
 
@@ -21,10 +21,15 @@ fun interface Interceptor {
 
         fun path(): String
 
-        //执行下一个拦截器
+        /**
+         * 继续执行下一个拦截器
+         * @param meta 传递给下个拦截器的路由信息
+         */
         fun proceed(meta: RouterMeta)
 
-        //中断路由
+        /**
+         * 中断路由操作
+         */
         fun interrupt()
 
         fun interceptors(): List<Interceptor>

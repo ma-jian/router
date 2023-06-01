@@ -84,9 +84,9 @@ class ResultContracts private constructor() {
         /**
          * 打开高德地图（公交出行，起点位置使用地图当前位置）
          * t = 0（驾车）= 1（公交）= 2（步行）= 3（骑行）= 4（火车）= 5（长途客车）
+         *
+         * 搜索地点 androidamap://poi?sourceApplication=softname&keywords=银行|加油站|电影院&dev=0
          * @param dname 终点名称
-         * 搜索地点
-         * androidamap://poi?sourceApplication=softname&keywords=银行|加油站|电影院&dev=0
          */
         private fun openGaoDeMap(packageName: String, dname: String): Intent {
             return Intent(Intent.ACTION_VIEW).apply {
@@ -101,8 +101,9 @@ class ResultContracts private constructor() {
          * 打开百度地图（公交出行，起点位置使用地图当前位置）
          * mode = transit（公交）、driving（驾车）、walking（步行）和riding（骑行）. 默认:driving
          * 当 mode=transit 时 ： sy = 0：推荐路线 、 2：少换乘 、 3：少步行 、 4：不坐地铁 、 5：时间短 、 6：地铁优先
-         * @param dname 终点名称
+         *
          * baidumap://map/geocoder?src=andr.baidu.openAPIdemo&address=北京市海淀区上地信息路9号奎科科技大厦
+         * @param dname 终点名称
          */
         private fun openBaiduMap(packageName: String, dname: String): Intent {
             return Intent(Intent.ACTION_VIEW).apply {
@@ -118,6 +119,7 @@ class ResultContracts private constructor() {
          * drive policy 0：较快捷 1：无高速 2：距离
          * 驾车：type=drive，policy有以下取值
          * 0：较快捷 、 1：无高速 、 2：距离短
+         *
          * policy的取值缺省为0
          * @param dname 终点名称
          */
@@ -269,21 +271,37 @@ class ResultContracts private constructor() {
 
         /**
          * [Settings.ACTION_SETTINGS] 显示系统设置
+         *
          * [Settings.ACTION_APPLICATION_DETAILS_SETTINGS] app 设置页面
+         *
          * [Settings.ACTION_WIRELESS_SETTINGS] 显示设置以允许配置无线控制，例如 Wi-Fi、蓝牙和移动网络
+         *
          * [Settings.ACTION_AIRPLANE_MODE_SETTINGS] 显示设置以允许进入退出飞行模式
+         *
          * [Settings.ACTION_WIFI_SETTINGS] 显示设置以允许配置 Wi-Fi
+         *
          * [Settings.ACTION_APN_SETTINGS] 显示设置以允许配置 APN
+         *
          * [Settings.ACTION_BLUETOOTH_SETTINGS] 显示设置以允许配置蓝牙
+         *
          * [Settings.ACTION_DATE_SETTINGS] 显示设置以允许配置日期和时间
+         *
          * [Settings.ACTION_LOCALE_SETTINGS] 显示设置以允许配置区域设置
+         *
          * [Settings.ACTION_INPUT_METHOD_SETTINGS] 显示配置输入法的设置，特别是允许用户启用输入法
+         *
          * [Settings.ACTION_DISPLAY_SETTINGS] 显示设置以允许配置显示
+         *
          * [Settings.ACTION_SECURITY_SETTINGS] 显示设置以允许配置安全性和位置隐私
+         *
          * [Settings.ACTION_LOCATION_SOURCE_SETTINGS] 显示设置以允许配置当前位置源
+         *
          * [Settings.ACTION_INTERNAL_STORAGE_SETTINGS] 显示内部存储设置
+         *
          * [Settings.ACTION_MEMORY_CARD_SETTINGS] 显示存储卡存储设置
+         *
          * [Settings.ACTION_APPLICATION_SETTINGS] 应用程序列表
+         *
          * [Settings.ACTION_APP_NOTIFICATION_SETTINGS] APP的通知设置界面
          */
         override fun createIntent(context: Context, input: String): Intent {

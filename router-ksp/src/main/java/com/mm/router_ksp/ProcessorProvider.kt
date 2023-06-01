@@ -22,6 +22,7 @@ class AutowiredProcessorProvider : SymbolProcessorProvider {
         return AutowiredProcessor(environment.logger, environment.codeGenerator)
     }
 }
+
 /**
  * [com.mm.annotation.ServiceProvider]
  */
@@ -31,6 +32,7 @@ class ProviderProcessorProvider : SymbolProcessorProvider {
         return ProviderProcessor(environment.logger, environment.codeGenerator, environment.options)
     }
 }
+
 /**
  * [com.mm.annotation.RouterPath]
  */
@@ -40,6 +42,7 @@ class RouterProcessorProvider : SymbolProcessorProvider {
         return RouterProcessor(environment.logger, environment.codeGenerator, environment.options)
     }
 }
+
 /**
  * [com.mm.annotation.RouterInterceptor]
  */
