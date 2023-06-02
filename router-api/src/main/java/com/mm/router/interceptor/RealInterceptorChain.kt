@@ -12,14 +12,13 @@ class RealInterceptorChain(
     private inline val router: RouterMeta,
     private inline val interceptors: List<Interceptor>,
     private inline val index: Int,
-    private inline val proceed: RouterMeta.() -> Unit,
-    private inline val interrupt: () -> Unit
+    private inline val interceptorBuilder: InterceptorBuilder
 ) : Interceptor.Chain {
 
     internal fun copy(
         index: Int = this.index,
         router: RouterMeta = this.router,
-    ) = RealInterceptorChain(router, interceptors, index, proceed, interrupt)
+    ) = RealInterceptorChain(router, interceptors, index, interceptorBuilder)
 
     override fun path(): String = router.path
 
@@ -30,12 +29,12 @@ class RealInterceptorChain(
             val interceptor = interceptors[index]
             interceptor.intercept(next)
         } else {
-            proceed.invoke(meta)
+            interceptorBuilder.proceed?.invoke(meta)
         }
     }
 
     override fun interrupt() {
-        interrupt.invoke()
+        interceptorBuilder.interrupt?.invoke()
     }
 
     override fun interceptors(): List<Interceptor> = interceptors

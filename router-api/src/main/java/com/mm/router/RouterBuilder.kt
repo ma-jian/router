@@ -15,6 +15,8 @@ import androidx.fragment.app.FragmentFactory
 import androidx.fragment.app.FragmentManager
 import com.mm.annotation.model.RouterMeta
 import com.mm.annotation.model.RouterType
+import com.mm.router.interceptor.ActivityResultBuilder
+import com.mm.router.interceptor.InterceptorBuilder
 import com.mm.router.interceptor.RealInterceptorChain
 import java.io.Serializable
 import java.lang.reflect.Type
@@ -196,16 +198,21 @@ class RouterBuilder(
     }
 
     /**
+     * 路由跳转到指定页面并返回拦截状态
+     */
+    fun navigationResult(resultBuilder: (ActivityResultBuilder) -> Unit) = interceptorRouter {
+        val also = ActivityResultBuilder().also(resultBuilder)
+        it.proceed { distributeRouter(this, { result -> also.arrivaled?.invoke(result) }, arrayOf<Any>()) ?: false }
+        it.interrupt { also.interrupt?.invoke() }
+    }
+
+    /**
      * 路由跳转到指定页面
      *
      * execute route and jump to the specified page
      */
-    fun navigation(): Boolean {
-        return interceptorRouter(proceed = {
-            distributeRouter(this, null, arrayOf<Any>()) ?: false
-        }, interrupt = {
-
-        })
+    fun navigation() = interceptorRouter {
+        it.proceed { distributeRouter(this, null, arrayOf<Any>()) ?: false }
     }
 
     /**
@@ -214,12 +221,8 @@ class RouterBuilder(
      * execute the route, jump to the specified page and return the result
      * @param callback the activity result callback
      */
-    fun navigation(callback: ActivityResultCallback<ActivityResult>): Boolean {
-        return interceptorRouter(proceed = {
-            distributeRouter<Boolean>(this, callback, arrayOf<Any>()) ?: false
-        }, interrupt = {
-
-        })
+    fun navigation(callback: ActivityResultCallback<ActivityResult>) = interceptorRouter {
+        it.proceed { distributeRouter<Boolean>(this, callback, arrayOf<Any>()) }
     }
 
     private fun <T> distributeRouter(meta: RouterMeta, callback: ActivityResultCallback<ActivityResult>?, vararg args: Any): T? {
@@ -271,7 +274,8 @@ class RouterBuilder(
                             provider.init(componentActivity)
                         }
                         provider as T
-                    } ?: throw IllegalArgumentException("can`t find this Constructor of class [${meta.destination}],args:[${args.joinToString { it.toString() }}]")
+                    }
+                        ?: throw IllegalArgumentException("can`t find this Constructor of class [${meta.destination}],args:[${args.joinToString { it.toString() }}]")
                 } catch (e: Exception) {
                     e.printStackTrace()
                     Router.LogE(Log.getStackTraceString(e))
@@ -341,13 +345,11 @@ class RouterBuilder(
     /**
      * 过滤当前路由拦截器
      */
-    private fun interceptorRouter(proceed: RouterMeta.() -> Unit, interrupt: () -> Unit): Boolean {
+    private fun interceptorRouter(interceptorBuilder: (InterceptorBuilder) -> Unit) {
         val filter = Router.interceptors.filter { meta.interceptors.isEmpty() || meta.interceptors.contains(it.key) }
         val list =
             filter.flatMap { arrayListOf(it.value) }.sortedByDescending { it.priority }.flatMap { arrayListOf(it.interceptor) }
-        val chain = RealInterceptorChain(meta, list, 0, proceed, interrupt)
-        chain.proceed(this.meta)
-        return true
+        RealInterceptorChain(meta, list, 0, InterceptorBuilder().also(interceptorBuilder)).proceed(this.meta)
     }
 
     /**

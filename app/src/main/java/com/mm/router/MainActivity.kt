@@ -40,7 +40,7 @@ class MainActivity : FragmentActivity() {
     @JvmField
     var name: String? = ""
 
-    @Autowired(name = "string",des = "用户名称1")
+    @Autowired(name = "string", des = "用户名称1")
     @JvmField
     var name2: String = ""
 
@@ -91,13 +91,21 @@ class MainActivity : FragmentActivity() {
         //startActivityForResult
         findViewById<View>(R.id.open_second).setOnClickListener {
             Router.init().open("com.mm.second").withString("string", editText.text.toString()).withInt("age", 100)
-                .withBoolean("bol", true).navigation() {
-                    val string = it.data?.getStringExtra("string")
-                    val bol = it.data?.getBooleanExtra("bol", false)
-                    val age = it.data?.getIntExtra("age", 0)
-                    val result = "ActivityResultCallback string:$string; bol:$bol; age:$age"
-                    stringBuilder.append("\n\n").append(result)
-                    textView.text = stringBuilder
+                .withBoolean("bol", true).navigationResult {
+                    //路由执行完毕
+                    it.onArrival { result ->
+                        val string = result.data?.getStringExtra("string")
+                        val bol = result.data?.getBooleanExtra("bol", false)
+                        val age = result.data?.getIntExtra("age", 0)
+                        val msg = "ActivityResultCallback string:$string; bol:$bol; age:$age"
+                        stringBuilder.append("\n\n").append(msg)
+                        textView.text = stringBuilder
+                    }
+
+                    //路由被中断、通过在[Interceptor]中执行chain.interrupt()方法
+                    it.onInterrupt {
+                        textView.text = textView.text.toString() + "\n onInterrupt"
+                    }
                 }
         }
 
