@@ -1,5 +1,6 @@
-package com.mm.annotation.interceptor
+package com.mm.router.interceptor
 
+import android.content.Intent
 import com.mm.annotation.model.RouterMeta
 
 
@@ -11,10 +12,11 @@ fun interface Interceptor {
     /**
      * 拦截器入口
      */
-    fun intercept(chain: Chain)
+    fun intercept(chain: Chain, intent: Intent)
 
     companion object {
-        inline operator fun invoke(crossinline block: (chain: Chain) -> Unit): Interceptor = Interceptor { block(it) }
+        inline operator fun invoke(crossinline block: (chain: Chain, intent: Intent) -> Unit): Interceptor =
+            Interceptor { chain, intent -> block(chain, intent) }
     }
 
     interface Chain {
@@ -25,7 +27,7 @@ fun interface Interceptor {
          * 继续执行下一个拦截器
          * @param meta 传递给下个拦截器的路由信息
          */
-        fun proceed(meta: RouterMeta)
+        fun proceed(meta: RouterMeta, intent: Intent)
 
         /**
          * 中断路由操作

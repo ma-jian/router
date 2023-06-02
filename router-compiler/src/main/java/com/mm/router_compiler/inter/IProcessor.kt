@@ -15,6 +15,7 @@ interface IProcessor {
         const val SERVICE = "android.app.Service"
         const val ISYRINGE = "com.mm.router.ISyringe"
         const val IPROVIDER = "com.mm.router.IProvider"
+        const val INTERCEPTOR = "com.mm.router.interceptor.Interceptor"
     }
 
     fun process(roundEnv: RoundEnvironment, abstractProcessor: BaseAbstractProcessor)

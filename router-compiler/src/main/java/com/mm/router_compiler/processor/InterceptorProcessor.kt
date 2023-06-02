@@ -2,7 +2,8 @@ package com.mm.router_compiler.processor
 
 import com.google.auto.service.AutoService
 import com.mm.annotation.RouterInterceptor
-import com.mm.annotation.model.InterceptorMeta
+import com.mm.annotation.model.RouterMeta
+import com.mm.annotation.model.RouterType
 import com.mm.router_compiler.BaseAbstractProcessor
 import com.mm.router_compiler.inter.IProcessor
 import com.squareup.javapoet.AnnotationSpec
@@ -19,6 +20,7 @@ import javax.annotation.processing.RoundEnvironment
 import javax.lang.model.element.Element
 import javax.lang.model.element.ElementKind
 import javax.lang.model.element.Modifier
+import javax.lang.model.type.TypeMirror
 import javax.lang.model.util.ElementFilter
 import javax.tools.Diagnostic
 
@@ -34,6 +36,8 @@ class InterceptorProcessor : IProcessor {
 
     override fun process(roundEnv: RoundEnvironment, abstractProcessor: BaseAbstractProcessor) {
         messager = abstractProcessor.mMessager
+        val types = abstractProcessor.mTypes
+        val elementUtils = abstractProcessor.mElements
         try {
             val elements: Set<Element>? = roundEnv.getElementsAnnotatedWith(RouterInterceptor::class.java)
             if (elements.isNullOrEmpty()) {
@@ -42,7 +46,7 @@ class InterceptorProcessor : IProcessor {
             val parameterizedTypeName: ParameterizedTypeName = ParameterizedTypeName.get(
                 ClassName.get(HashMap::class.java),
                 ClassName.get(String::class.java),
-                ClassName.get(InterceptorMeta::class.java)
+                ClassName.get(RouterMeta::class.java)
             )
             val parameterSpec: ParameterSpec = ParameterSpec.builder(parameterizedTypeName, "interceptors").build()
             val methodSpecBuilder: MethodSpec.Builder = MethodSpec.methodBuilder("intercept")
@@ -58,15 +62,23 @@ class InterceptorProcessor : IProcessor {
                 val qualifiedName = typeElement.qualifiedName.toString()
                 packageName = qualifiedName.substring(0, qualifiedName.lastIndexOf("."))
                 val router: RouterInterceptor = typeElement.getAnnotation(RouterInterceptor::class.java)
-                methodSpecBuilder.addStatement(
-                    "interceptors.put(\$S, \$T.build(\$S, \$L, new \$T(), \$S))",
-                    router.value,
-                    ClassName.get(InterceptorMeta::class.java),
-                    router.value,
-                    router.priority,
-                    typeElement.asType(),
-                    router.des
-                )
+                val type = typeElement.asType()
+                val interceptor: TypeMirror = elementUtils.getTypeElement(IProcessor.INTERCEPTOR).asType()
+
+                if (types.isSubtype(type, interceptor)) {
+                    methodSpecBuilder.addStatement(
+                        "interceptors.put(\$S, \$T.build(\$T.INTERCEPTOR, \$S, \$T.class, \$S, \$L))",
+                        router.value,
+                        ClassName.get(RouterMeta::class.java),
+                        ClassName.get(RouterType::class.java),
+                        router.value,
+                        type,
+                        router.des,
+                        router.priority,
+                    )
+                } else {
+                    throw RuntimeException("The @RouterInterceptor is marked on unsupported class,implement the current interface [${IProcessor.INTERCEPTOR}]")
+                }
             }
             val methodSpec: MethodSpec = methodSpecBuilder.build()
             val moduleName = abstractProcessor.moduleName

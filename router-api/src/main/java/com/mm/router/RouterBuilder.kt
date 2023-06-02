@@ -16,6 +16,7 @@ import androidx.fragment.app.FragmentManager
 import com.mm.annotation.model.RouterMeta
 import com.mm.annotation.model.RouterType
 import com.mm.router.interceptor.ActivityResultBuilder
+import com.mm.router.interceptor.Interceptor
 import com.mm.router.interceptor.InterceptorBuilder
 import com.mm.router.interceptor.RealInterceptorChain
 import java.io.Serializable
@@ -35,8 +36,6 @@ class RouterBuilder(
     private lateinit var componentActivity: FragmentActivity
     private var fragment: Fragment? = null
     private var intent: Intent
-    private var bundle: Bundle = Bundle()
-
     private var meta: RouterMeta
 
     companion object {
@@ -85,7 +84,7 @@ class RouterBuilder(
      */
     fun withBundle(bundle: Bundle?): RouterBuilder {
         if (bundle != null) {
-            this.bundle = bundle
+            intent.putExtras(bundle)
         }
         return this
     }
@@ -96,7 +95,7 @@ class RouterBuilder(
      * @param value
      */
     fun withString(key: String, value: String?): RouterBuilder {
-        bundle.putString(key, value)
+        intent.putExtra(key, value)
         return this
     }
 
@@ -106,7 +105,7 @@ class RouterBuilder(
      * @param value
      */
     fun withStringArray(key: String, value: Array<String>?): RouterBuilder {
-        bundle.putStringArray(key, value)
+        intent.putExtra(key, value)
         return this
     }
 
@@ -116,7 +115,7 @@ class RouterBuilder(
      * @param value
      */
     fun withInt(key: String, value: Int): RouterBuilder {
-        bundle.putInt(key, value)
+        intent.putExtra(key, value)
         return this
     }
 
@@ -126,7 +125,7 @@ class RouterBuilder(
      * @param value
      */
     fun withBoolean(key: String, value: Boolean): RouterBuilder {
-        bundle.putBoolean(key, value)
+        intent.putExtra(key, value)
         return this
     }
 
@@ -136,7 +135,7 @@ class RouterBuilder(
      * @param value
      */
     fun withStringArrayList(key: String, value: ArrayList<String>?): RouterBuilder {
-        bundle.putStringArrayList(key, value)
+        intent.putExtra(key, value)
         return this
     }
 
@@ -146,7 +145,7 @@ class RouterBuilder(
      * @param value
      */
     fun withParcelable(key: String, value: Parcelable?): RouterBuilder {
-        bundle.putParcelable(key, value)
+        intent.putExtra(key, value)
         return this
     }
 
@@ -156,7 +155,7 @@ class RouterBuilder(
      * @param value
      */
     fun withParcelableArrayList(key: String, value: ArrayList<out Parcelable?>?): RouterBuilder {
-        bundle.putParcelableArrayList(key, value)
+        intent.putExtra(key, value)
         return this
     }
 
@@ -166,7 +165,7 @@ class RouterBuilder(
      * @param value
      */
     fun withSerializable(key: String, value: Serializable?): RouterBuilder {
-        bundle.putSerializable(key, value)
+        intent.putExtra(key, value)
         return this
     }
 
@@ -283,12 +282,19 @@ class RouterBuilder(
                 }
             }
 
+            RouterType.INTERCEPTOR -> {
+                return meta.destination!!.declaredConstructors.find { it.parameterTypes.size == args.size }?.let {
+                    it.isAccessible = true
+                    val provider = it.newInstance(*args)
+                    provider as T
+                }
+            }
+
             RouterType.UNKNOWN -> return null
         }
     }
 
     private fun filterIntent(intent: Intent, callback: ActivityResultCallback<ActivityResult>): Boolean {
-        intent.putExtras(bundle)
         var result = true
         if (meta.type == RouterType.ACTIVITY) {
             result = routerFragment.navigation(intent, callback)
@@ -348,8 +354,12 @@ class RouterBuilder(
     private fun interceptorRouter(interceptorBuilder: (InterceptorBuilder) -> Unit) {
         val filter = Router.interceptors.filter { meta.interceptors.isEmpty() || meta.interceptors.contains(it.key) }
         val list =
-            filter.flatMap { arrayListOf(it.value) }.sortedByDescending { it.priority }.flatMap { arrayListOf(it.interceptor) }
-        RealInterceptorChain(meta, list, 0, InterceptorBuilder().also(interceptorBuilder)).proceed(this.meta)
+            filter.map { it.value }.sortedByDescending { it.priority }.map {
+                val constructor = it.destination!!.getDeclaredConstructor()
+                constructor.isAccessible = true
+                constructor.newInstance() as Interceptor
+            }
+        RealInterceptorChain(meta, list, 0, InterceptorBuilder().also(interceptorBuilder)).proceed(this.meta, this.intent)
     }
 
     /**

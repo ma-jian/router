@@ -10,12 +10,15 @@ import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFile
 import com.mm.annotation.RouterInterceptor
-import com.mm.annotation.model.InterceptorMeta
+import com.mm.annotation.model.RouterMeta
+import com.mm.annotation.model.RouterType
+import com.mm.router_ksp.utils.INTERCEPTOR
 import com.mm.router_ksp.utils.INTERCEPTOR_CREATOR
 import com.mm.router_ksp.utils.WARNING_TIPS
 import com.mm.router_ksp.utils.findAnnotationWithType
 import com.mm.router_ksp.utils.findModuleName
 import com.mm.router_ksp.utils.quantifyNameToClassName
+import com.mm.router_ksp.utils.routeType
 import com.squareup.kotlinpoet.AnnotationSpec
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.CodeBlock
@@ -59,7 +62,7 @@ class InterceptorProcessor(
         val map = ClassName("java.util", "HashMap")
         val parameterSpec = ParameterSpec.builder(
             "interceptors", map.parameterizedBy(
-                STRING, InterceptorMeta::class.asTypeName()
+                STRING, RouterMeta::class.asTypeName()
             ).copy(nullable = false)
         ).build()
 
@@ -76,16 +79,20 @@ class InterceptorProcessor(
             packageName = qualifiedName.substring(0, qualifiedName.lastIndexOf("."))
             val interceptor =
                 it.findAnnotationWithType<RouterInterceptor>() ?: error("$qualifiedName must annotated with @RouterInterceptor")
-
-            funSpecBuild.addStatement(
-                "interceptors.put(%S, %T.build(%S,%L,%T(),%S))",
-                interceptor.value,
-                InterceptorMeta::class,
-                interceptor.value,
-                interceptor.priority,
-                it.qualifiedName!!.asString().quantifyNameToClassName(),
-                interceptor.des
-            )
+            if (it.routeType == RouterType.INTERCEPTOR) {
+                funSpecBuild.addStatement(
+                    "interceptors.put(%S, %T.build(%T.${it.routeType}, %S, %T::class.java, %S, %L))",
+                    interceptor.value,
+                    RouterMeta::class,
+                    RouterType::class,
+                    interceptor.value,
+                    it.qualifiedName!!.asString().quantifyNameToClassName(),
+                    interceptor.des,
+                    interceptor.priority
+                )
+            } else {
+                error("The @RouterInterceptor is marked on unsupported class,implement the current interface [$INTERCEPTOR]")
+            }
             it.containingFile?.let { file ->
                 groupFileDependencies.add(file)
             }

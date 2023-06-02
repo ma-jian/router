@@ -1,6 +1,6 @@
 package com.mm.router
 
-import com.mm.annotation.model.InterceptorMeta
+import com.mm.annotation.model.RouterMeta
 
 /**
  * 路由拦截接口，支持自定义路由的拦截跳转
@@ -8,5 +8,5 @@ import com.mm.annotation.model.InterceptorMeta
  */
 interface IRouterInterceptor {
 
-    fun intercept(interceptors: HashMap<String, InterceptorMeta>)
+    fun intercept(interceptors: HashMap<String, RouterMeta>)
 }

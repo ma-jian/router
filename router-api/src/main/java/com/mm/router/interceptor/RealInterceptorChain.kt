@@ -1,6 +1,6 @@
 package com.mm.router.interceptor
 
-import com.mm.annotation.interceptor.Interceptor
+import android.content.Intent
 import com.mm.annotation.model.RouterMeta
 
 
@@ -22,12 +22,12 @@ class RealInterceptorChain(
 
     override fun path(): String = router.path
 
-    override fun proceed(meta: RouterMeta) {
+    override fun proceed(meta: RouterMeta, intent: Intent) {
         if (index < interceptors.size) {
             // Call the next interceptor in the chain.
             val next = copy(index = index + 1, meta)
             val interceptor = interceptors[index]
-            interceptor.intercept(next)
+            interceptor.intercept(next, intent)
         } else {
             interceptorBuilder.proceed?.invoke(meta)
         }

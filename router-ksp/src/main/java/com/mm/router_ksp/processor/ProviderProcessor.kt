@@ -86,7 +86,7 @@ class ProviderProcessor(private val logger: KSPLogger, private val codeGenerator
                     des
                 )
             } else {
-                throw RuntimeException("The @ServiceProvider is marked on unsupported class, look at [$qualifiedName]. this must inherit $IPROVIDER")
+                throw RuntimeException("The @ServiceProvider is marked on unsupported class, look at [$qualifiedName],implement the current interface [$IPROVIDER]")
             }
             it.containingFile?.let { file ->
                 groupFileDependencies.add(file)

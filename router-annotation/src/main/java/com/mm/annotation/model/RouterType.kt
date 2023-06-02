@@ -17,5 +17,7 @@ enum class RouterType(val int: Int, val className: String) {
 
     SYSTEM_ACTIVITY(4, "android.app.Activity"),
 
+    INTERCEPTOR(5, "com.mm.router.interceptor.Interceptor"),
+
     UNKNOWN(-1, "Unknown route type")
 }

@@ -4,7 +4,6 @@ import android.util.Log
 import androidx.annotation.StringDef
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
-import com.mm.annotation.model.InterceptorMeta
 import com.mm.annotation.model.RouterMeta
 
 /**
@@ -100,7 +99,7 @@ object Router {
     /**
      * router interceptors
      */
-    internal val interceptors = HashMap<String, InterceptorMeta>()
+    internal val interceptors = HashMap<String, RouterMeta>()
 
     /**
      * Init Router to make everything prepare to work.

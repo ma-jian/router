@@ -78,7 +78,7 @@ class ServiceProviderProcessor : IProcessor {
                         )
                     )
                 } else {
-                    throw RuntimeException("The @ServiceProvider is marked on unsupported class, look at [$tm]. this must inherit $iProvider")
+                    throw RuntimeException("The @ServiceProvider is marked on unsupported class, look at [$tm],implement the current interface $iProvider")
                 }
             }
             val methodSpec: MethodSpec = methodSpecBuilder.build()

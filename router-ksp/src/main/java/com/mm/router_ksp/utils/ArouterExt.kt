@@ -27,6 +27,7 @@ const val FRAGMENT_V4 = "android.support.v4.app.Fragment"
 const val SERVICE = "android.app.Service"
 const val ISYRINGE = "com.mm.router.ISyringe"
 const val IPROVIDER = "com.mm.router.IProvider"
+const val INTERCEPTOR = "com.mm.router.interceptor.Interceptor"
 const val IROUTER_CREATOR = "com.mm.router.IRouterRulesCreator"
 const val INTERCEPTOR_CREATOR = "com.mm.router.IRouterInterceptor"
 
@@ -86,7 +87,8 @@ private val ROUTE_TYPE_LIST = listOf(
     FRAGMENT_V4, // 3
     FRAGMENT_ANDROIDX, // 4
     SERVICE, // 5
-    IPROVIDER // 6
+    IPROVIDER, // 6
+    INTERCEPTOR // 7
 )
 
 internal val KSClassDeclaration.routeType: RouterType
@@ -95,5 +97,6 @@ internal val KSClassDeclaration.routeType: RouterType
         2, 3, 4 -> RouterType.FRAGMENT
         5 -> RouterType.SERVICE
         6 -> RouterType.PROVIDER
+        7 -> RouterType.INTERCEPTOR
         else -> RouterType.UNKNOWN
     }
