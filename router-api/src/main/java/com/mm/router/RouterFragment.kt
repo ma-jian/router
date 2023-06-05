@@ -17,8 +17,6 @@ import java.io.File
 
 
 /**
- * Created by : m
- *
  * An invisible fragment to embedded into activity for handling ActivityResultLauncher requests.
  * @since 1.0
  */
@@ -61,7 +59,7 @@ class RouterFragment : Fragment() {
 
     /**
      * launcher of TakePicturePreview
-     * [MediaStore.ACTION_IMAGE_CAPTURE]  take small a picture preview, returning it as a Bitmap
+     * [MediaStore.ACTION_IMAGE_CAPTURE] take small a picture preview, returning it as a Bitmap
      */
     private val picPreviewLauncher = registerForActivityResult(ActivityResultContracts.TakePicturePreview()) {
         if (checkBitmapForGC("TakePicturePreview")) {

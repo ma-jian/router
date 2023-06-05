@@ -10,17 +10,14 @@ import android.text.TextUtils
 import android.util.ArrayMap
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
-import com.mm.annotation.model.RouterMeta
-import com.mm.annotation.model.RouterType
+import com.mm.router.annotation.model.RouterMeta
+import com.mm.router.annotation.model.RouterType
 import com.mm.router.service.AutowiredService
 
 /**
- * Created by : m
-
  * 匹配处理需要打开的url地址
  *
  * URL address to be opened activity for matching processing
- *
  * @since 1.0
  */
 
@@ -78,7 +75,7 @@ class RouterMediator {
     }
 
     /**
-     * 打开指定[ComponentName]页面
+     * 打开指定 [ComponentName] 页面
      *
      * will open activity by ComponentName
      * @param componentName a ComponentName to be opened
@@ -95,7 +92,7 @@ class RouterMediator {
     }
 
     /**
-     * 打开指定[RouterMeta.path]页面
+     * 打开指定 [RouterMeta.path] 页面
      *
      * will open activity by path
      * @param url an address to be opened
@@ -107,7 +104,7 @@ class RouterMediator {
     }
 
     /**
-     * 打开Activity页面或者获取[com.mm.annotation.ServiceProvider]标记的接口
+     * 打开Activity页面或者获取 [com.mm.router.annotation.ServiceProvider] 标记的接口
      * @param clazz
      */
     fun open(clazz: Class<*>): RouterBuilder {

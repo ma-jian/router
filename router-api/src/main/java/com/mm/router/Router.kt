@@ -4,10 +4,9 @@ import android.util.Log
 import androidx.annotation.StringDef
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
-import com.mm.annotation.model.RouterMeta
+import com.mm.router.annotation.model.RouterMeta
 
 /**
- * Created by : m
  *
  * 自定义url路由 采用 Result Api 的方式打开指定页面
  *
@@ -26,7 +25,7 @@ import com.mm.annotation.model.RouterMeta
  *
  * 5、默认提供的系统页面 [Router.Path]
  *
- * 6、支持通过[com.mm.annotation.RouterInterceptor] 添加路由拦截器
+ * 6、支持通过 [com.mm.router.annotation.RouterInterceptor] 添加路由拦截器
  *
  * @since 1.0 Activity 跳转升级为 Activity Result API 的方式
  */
@@ -143,7 +142,7 @@ object Router {
     }
 
     /**
-     * add router rules for annotation [com.mm.annotation.RouterPath]
+     * add router rules for annotation [com.mm.router.annotation.RouterPath]
      *
      * @param creator spi RouterCreator
      */
@@ -154,7 +153,7 @@ object Router {
     }
 
     /**
-     * add router interceptor for annotation [com.mm.annotation.RouterInterceptor]
+     * add router interceptor for annotation [com.mm.router.annotation.RouterInterceptor]
      *
      * @param interceptor spi RouterInterceptor
      */

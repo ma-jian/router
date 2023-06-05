@@ -3,7 +3,7 @@
 
     <application>
         <provider
-            android:name=".DefaultInitializer"
+            android:name="com.mm.router.DefaultInitializer"
             android:authorities="${applicationId}.DefaultInitializer"
             android:enabled="@bool/delegate_watcher_auto_install"
             android:exported="false" />

@@ -8,7 +8,7 @@ import java.lang.ref.WeakReference
 import java.util.ServiceLoader
 
 /**
- * Describe : activity生命周期监听代理
+ * activity生命周期监听代理
  * @since 1.0
  */
 

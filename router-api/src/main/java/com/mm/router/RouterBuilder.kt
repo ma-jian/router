@@ -13,8 +13,8 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentFactory
 import androidx.fragment.app.FragmentManager
-import com.mm.annotation.model.RouterMeta
-import com.mm.annotation.model.RouterType
+import com.mm.router.annotation.model.RouterMeta
+import com.mm.router.annotation.model.RouterType
 import com.mm.router.interceptor.ActivityResultBuilder
 import com.mm.router.interceptor.Interceptor
 import com.mm.router.interceptor.InterceptorBuilder
@@ -23,7 +23,6 @@ import java.io.Serializable
 import java.lang.reflect.Type
 
 /**
- * Created by : m
  *
  * Process the data and open the specified page with result API
  *
@@ -224,6 +223,7 @@ class RouterBuilder(
         it.proceed { distributeRouter<Boolean>(this, callback, arrayOf<Any>()) }
     }
 
+    @Suppress("UNCHECKED_CAST")
     private fun <T> distributeRouter(meta: RouterMeta, callback: ActivityResultCallback<ActivityResult>?, vararg args: Any): T? {
         when (meta.type) {
             RouterType.ACTIVITY, RouterType.SYSTEM_ACTIVITY -> {
@@ -285,8 +285,8 @@ class RouterBuilder(
             RouterType.INTERCEPTOR -> {
                 return meta.destination!!.declaredConstructors.find { it.parameterTypes.size == args.size }?.let {
                     it.isAccessible = true
-                    val provider = it.newInstance(*args)
-                    provider as T
+                    val interceptor = it.newInstance(*args)
+                    interceptor as T
                 }
             }
 

@@ -1,7 +1,7 @@
 package com.mm.router.interceptor
 
 import android.content.Intent
-import com.mm.annotation.model.RouterMeta
+import com.mm.router.annotation.model.RouterMeta
 
 
 /**

@@ -7,7 +7,7 @@ import android.database.Cursor
 import android.net.Uri
 
 /**
- * 为[RouterActivityLifecycle]提供默认初始化
+ * 为 [RouterActivityLifecycle] 提供默认初始化
  * @since 1.0
  */
 internal class DefaultInitializer : ContentProvider() {

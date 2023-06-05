@@ -1,5 +1,5 @@
-com.mm.router_ksp.AutowiredProcessorProvider
-com.mm.router_ksp.ProviderProcessorProvider
-com.mm.router_ksp.RouterProcessorProvider
-com.mm.router_ksp.InterceptorProcessorProvider
-com.mm.router_ksp.auto.AutoServiceSymbolProcessorProvider
+com.mm.router.ksp.AutowiredProcessorProvider
+com.mm.router.ksp.ProviderProcessorProvider
+com.mm.router.ksp.RouterProcessorProvider
+com.mm.router.ksp.InterceptorProcessorProvider
+com.mm.router.ksp.auto.AutoServiceSymbolProcessorProvider
