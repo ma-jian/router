@@ -1,5 +1,6 @@
 package com.mm.router
 
+import android.annotation.SuppressLint
 import android.app.ActivityManager
 import android.app.Application
 import android.content.ComponentName
@@ -119,6 +120,8 @@ class RouterMediator {
      * will open activity, It can be opened from the app background
      * @param url an address to be opened
      */
+    @SuppressLint("QueryPermissionsNeeded")
+    @Suppress("DEPRECATION")
     fun openWithAppRunning(url: String): RouterBuilder {
         val meta = findRouterMeta(url)
         return currentContext?.let {
@@ -298,6 +301,7 @@ class RouterMediator {
      * @param context
      * @return int 1:前台 2:后台 0:不存在
      */
+    @Suppress("DEPRECATION")
     private fun isAppAlive(context: Context): Int {
         val activityManager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
         val runningTaskInfo = activityManager.getRunningTasks(10)

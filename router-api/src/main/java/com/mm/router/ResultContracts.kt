@@ -137,6 +137,7 @@ class ResultContracts private constructor() {
          * @param packageName 包名
          * @return
          */
+        @Suppress("DEPRECATION")
         private fun checkMapAppsIsExist(context: Context, packageName: String): Boolean {
             var packageInfo: PackageInfo?
             try {

@@ -35,10 +35,10 @@ ksp {
 
 dependencies {
     api 'com.google.auto.service:auto-service-annotations:1.0.1'
-//    api "io.github.ma-jian:router-annotation:1.0.2-SNAPSHOT"
-//    ksp "io.github.ma-jian:router-ksp:1.0.2-SNAPSHOT"
-    api project(":router-annotation")
-    ksp project(":router-ksp")
+    api "io.github.ma-jian:router-annotation:1.0.2"
+    ksp "io.github.ma-jian:router-ksp:1.0.3"
+//    api project(":router-annotation")
+//    ksp project(":router-ksp")
     compileOnly "androidx.appcompat:appcompat:1.6.1"
     testImplementation 'junit:junit:4.13.2'
     implementation "org.jetbrains.kotlin:kotlin-reflect:1.8.20"

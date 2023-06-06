@@ -168,6 +168,7 @@ fun KSClassDeclaration.pairServices(name: String): KSType {
     return provider?.arguments?.find { it.name!!.getShortName() == name }?.value as KSType
 }
 
+@Suppress("UNCHECKED_CAST")
 fun KSClassDeclaration.pairParams(name: String): List<KSType> {
     val provider = annotations.find {
         it.shortName.asString() == ServiceProvider::class.java.simpleName && it.annotationType.resolve().declaration

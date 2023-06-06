@@ -18,6 +18,7 @@ import com.mm.router.ksp.utils.getKotlinPoetTTypeGeneric
 import com.mm.router.ksp.utils.quantifyNameToClassName
 import com.mm.router.ksp.utils.routeType
 import com.mm.router.ksp.utils.typeExchange
+import com.squareup.kotlinpoet.AnnotationSpec
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.FileSpec
@@ -67,6 +68,8 @@ class AutowiredProcessor(private val logger: KSPLogger, private val codeGenerato
             val target = key.qualifiedName!!.asString().quantifyNameToClassName()
             val funSpecBuild = FunSpec.builder("inject").addModifiers(KModifier.OVERRIDE).addParameter(objParameterSpec)
                 .addStatement("val substitute = target as %T", target)
+                    //@Suppress("DEPRECATION")
+                .addAnnotation(AnnotationSpec.builder(Suppress::class).addMember("%S","DEPRECATION").build())
             val routeType = key.routeType
             value.forEach { field ->
                 val autowired = field.findAnnotationWithType<Autowired>()

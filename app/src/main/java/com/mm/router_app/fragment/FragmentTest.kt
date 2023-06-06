@@ -31,21 +31,21 @@ class FragmentTest : Fragment() {
     @Autowired(name = "name")
     @JvmField
     var name: String? = ""
-    @Autowired(name = "name")
+    @Autowired(name = "name1")
     @JvmField
-    var name2: String = ""
+    var name1: String = ""
 
     @Autowired(name = "long")
     @JvmField
     var log: Long? = 0
-    @Autowired(name = "long")
+    @Autowired(name = "long1")
     @JvmField
     var log1: Long = 0
 
-    @Autowired(name = "long")
+    @Autowired(name = "dou")
     @JvmField
     var dou: Double = 0.0
-    @Autowired(name = "long")
+    @Autowired(name = "dou1")
     @JvmField
     var dou1: Double? = 0.0
 
@@ -53,7 +53,7 @@ class FragmentTest : Fragment() {
     @JvmField
     var bean: SerBean = SerBean()
 
-    @Autowired(name = "bean")
+    @Autowired(name = "bean1")
     @JvmField
     var bean1: ParaBean? = null
 

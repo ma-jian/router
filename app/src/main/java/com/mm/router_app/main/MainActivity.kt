@@ -47,7 +47,7 @@ class MainActivity : FragmentActivity() {
     @JvmField
     var name: String? = ""
 
-    @Autowired(name = "string", des = "用户名称1")
+    @Autowired(name = "name2", des = "用户名称1")
     @JvmField
     var name2: String = ""
 
@@ -55,15 +55,15 @@ class MainActivity : FragmentActivity() {
     @JvmField
     var log: Long? = 0
 
-    @Autowired(name = "long")
+    @Autowired(name = "long1")
     @JvmField
     var log1: Long = 0
 
-    @Autowired(name = "long")
+    @Autowired(name = "dou")
     @JvmField
     var dou: Double = 0.0
 
-    @Autowired(name = "long", required = true)
+    @Autowired(name = "dou1", required = true)
     @JvmField
     var dou1: Double? = 0.0
 

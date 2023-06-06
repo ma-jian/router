@@ -329,6 +329,7 @@ class RouterFragment : Fragment() {
      * 系统分享
      * @param intent
      */
+    @Suppress("DEPRECATION")
     fun sendShare(intent: Intent, callback: ActivityResultCallback<ActivityResult>) {
         this.resultCallback = callback
         val stream = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -392,6 +393,7 @@ class RouterFragment : Fragment() {
      * check intent is safe
      * @param intent
      */
+    @Suppress("DEPRECATION")
     private fun checkIntent(intent: Intent, block: () -> Unit): Boolean {
         return if (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
                 requireActivity().packageManager.resolveActivity(
@@ -456,6 +458,7 @@ class RouterFragment : Fragment() {
         return true
     }
 
+    @Suppress("SameParameterValue")
     private fun checkListUriForGC(str: String): Boolean {
         if (!::listUriCallback.isInitialized) {
             logE("$str listUriCallback")

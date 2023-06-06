@@ -5,6 +5,7 @@ import com.mm.router.compiler.BaseAbstractProcessor
 import com.mm.router.compiler.inter.IProcessor
 import com.mm.router.compiler.util.TypeKind
 import com.mm.router.compiler.util.TypeUtils
+import com.squareup.javapoet.AnnotationSpec
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.JavaFile
@@ -70,7 +71,9 @@ class AutowiredProcessor : IProcessor {
                         .addModifiers(Modifier.PUBLIC)
 
                 val injectMethodBuilder =
-                    MethodSpec.methodBuilder("inject").addAnnotation(Override::class.java).addModifiers(Modifier.PUBLIC)
+                    MethodSpec.methodBuilder("inject")
+                        .addAnnotation(AnnotationSpec.builder(SuppressWarnings::class.java).addMember("value","\$S","DEPRECATION").build())
+                        .addAnnotation(Override::class.java).addModifiers(Modifier.PUBLIC)
                         .addParameter(objectParamSpec)
                         .addStatement("\$T substitute = (\$T)target", ClassName.get(parent), ClassName.get(parent))
                 // Generate method body, start inject.
