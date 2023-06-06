@@ -41,6 +41,7 @@ dependencies {
     ksp project(":router-ksp")
     compileOnly "androidx.appcompat:appcompat:1.6.1"
     testImplementation 'junit:junit:4.13.2'
+    implementation "org.jetbrains.kotlin:kotlin-reflect:1.8.20"
 }
 java {
     sourceCompatibility = JavaVersion.VERSION_1_8

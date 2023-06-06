@@ -12,7 +12,6 @@ import com.google.devtools.ksp.symbol.KSFile
 import com.mm.router.annotation.ServiceProvider
 import com.mm.router.annotation.model.RouterMeta
 import com.mm.router.annotation.model.RouterType
-import com.mm.router.ksp.utils.IPROVIDER
 import com.mm.router.ksp.utils.IROUTER_CREATOR
 import com.mm.router.ksp.utils.WARNING_TIPS
 import com.mm.router.ksp.utils.findModuleName
@@ -20,7 +19,6 @@ import com.mm.router.ksp.utils.isClassKind
 import com.mm.router.ksp.utils.kindType
 import com.mm.router.ksp.utils.pairString
 import com.mm.router.ksp.utils.quantifyNameToClassName
-import com.mm.router.ksp.utils.routeType
 import com.squareup.kotlinpoet.AnnotationSpec
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.CodeBlock
@@ -74,11 +72,11 @@ class ProviderProcessor(private val logger: KSPLogger, private val codeGenerator
             val qualifiedName = it.qualifiedName?.asString() ?: error("local variable can not be annotated with @ServiceProvider")
             packageName = qualifiedName.substring(0, qualifiedName.lastIndexOf("."))
 
-            if (it.routeType == RouterType.PROVIDER && it.isClassKind(ClassKind.INTERFACE)) {
+            if (it.isClassKind(ClassKind.INTERFACE)) {
                 val value = it.pairString("value")
                 val des = it.pairString("des")
                 funSpecBuild.addStatement(
-                    "rules.put(%S, %T.build(%T.${it.routeType},%S,%T::class.java,%S))",
+                    "rules.put(%S, %T.build(%T.PROVIDER, %S, %T::class.java, %S))",
                     value,
                     RouterMeta::class,
                     RouterType::class,
@@ -87,8 +85,8 @@ class ProviderProcessor(private val logger: KSPLogger, private val codeGenerator
                     des
                 )
             } else {
-                throw RuntimeException("The @ServiceProvider is marked on unsupported class, look at [$qualifiedName] and The superclass is ${it.kindType()}" +
-                        ",implement the current interface [$IPROVIDER]")
+                throw RuntimeException("The @ServiceProvider is marked on unsupported class, look at [$qualifiedName] and The superclass type is ${it.kindType()}" +
+                        ", that must be an interface")
             }
             it.containingFile?.let { file ->
                 groupFileDependencies.add(file)

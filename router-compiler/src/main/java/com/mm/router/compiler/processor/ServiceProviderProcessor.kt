@@ -37,7 +37,6 @@ class ServiceProviderProcessor : IProcessor {
     private lateinit var messager: Messager
 
     override fun process(roundEnv: RoundEnvironment, abstractProcessor: BaseAbstractProcessor) {
-        val types = abstractProcessor.mTypes
         val elementUtils = abstractProcessor.mElements
         messager = abstractProcessor.mMessager
 
@@ -53,7 +52,6 @@ class ServiceProviderProcessor : IProcessor {
             val methodSpecBuilder: MethodSpec.Builder =
                 MethodSpec.methodBuilder("initRule").addAnnotation(Override::class.java).addModifiers(Modifier.PUBLIC)
                     .addParameter(parameterSpec)
-            val iProvider = elementUtils.getTypeElement(IProcessor.IPROVIDER).asType()
             var packageName: String = javaClass.getPackage().name
             for (typeElement in ElementFilter.typesIn(roundEnv.getElementsAnnotatedWith(ServiceProvider::class.java))) {
                 if (typeElement.kind != ElementKind.CLASS) {
@@ -65,7 +63,7 @@ class ServiceProviderProcessor : IProcessor {
                 val provider: ServiceProvider = typeElement.getAnnotation(ServiceProvider::class.java)
                 val tm: TypeMirror = typeElement.asType()
                 val declaredType = typeElement.interfaces.first() as DeclaredType
-                if (types.isSubtype(tm, iProvider) &&  declaredType.asElement().kind == ElementKind.INTERFACE) {
+                if (declaredType.asElement().kind == ElementKind.INTERFACE) {
                     // IProvider
                     val routerType = RouterType.PROVIDER
                     val value = provider.value
@@ -81,8 +79,10 @@ class ServiceProviderProcessor : IProcessor {
                         )
                     )
                 } else {
-                    throw RuntimeException("The @ServiceProvider is marked on unsupported class, look at [$tm] and The superclass must be an interface [${declaredType.asElement().kind}]," +
-                            " implement the current interface $iProvider")
+                    throw RuntimeException(
+                        "The @ServiceProvider is marked on unsupported class, look at [$tm] and The superclass type is [${declaredType.asElement().kind}]," +
+                                " that must be an interface"
+                    )
                 }
             }
             val methodSpec: MethodSpec = methodSpecBuilder.build()

@@ -274,10 +274,9 @@ class RouterBuilder(
                         }
                         provider as T
                     }
-                        ?: throw IllegalArgumentException("can`t find this Constructor of class [${meta.destination}],args:[${args.joinToString { it.toString() }}]")
+                        ?: throw IllegalArgumentException("can`t find this Constructor of class [${meta.destination}],args:[${args.joinToString {it.toString()}}]")
                 } catch (e: Exception) {
                     e.printStackTrace()
-                    Router.LogE(Log.getStackTraceString(e))
                     null
                 }
             }

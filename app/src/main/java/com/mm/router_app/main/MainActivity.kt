@@ -17,11 +17,11 @@ import com.mm.router.ResultContracts
 import com.mm.router.Router
 import com.mm.router.annotation.Autowired
 import com.mm.router.annotation.RouterPath
-import com.mm.router_app.provider.IServiceProvider
-import com.mm.router_app.bean.ParaBean
 import com.mm.router_app.R
-import com.mm.router_app.ServiceProviderImpl2
+import com.mm.router_app.bean.ParaBean
 import com.mm.router_app.bean.SerBean
+import com.mm.router_app.provider.IServiceProvider
+import com.mm.router_app.provider.ServiceProviderImpl
 
 
 @RouterPath("com.mm.main", interceptor = ["router"], des = "主页面")
@@ -91,7 +91,10 @@ class MainActivity : FragmentActivity() {
         stringBuilder.append("age:$age; string:$name2; name:$name; long $log")
         textView.text = stringBuilder
 
-        val provider = Router.init().open(ServiceProviderImpl2::class.java).doProvider<IServiceProvider>("a", 1, 1L, "ad")
+        /**
+         * [ServiceProviderImpl]
+         */
+        val provider = Router.init().open("/service/provider").doProvider<IServiceProvider>("a", 1, 1L, false)
         stringBuilder.append("\n\n").append(provider?.message())
         textView.text = stringBuilder
 

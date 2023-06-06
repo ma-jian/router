@@ -81,7 +81,7 @@ class RouterProcessor(private val logger: KSPLogger, private val codeGenerator: 
             }
             builder.append(")")
             funSpecBuild.addStatement(
-                "rules.put(%S, %T.build(%T.${it.routeType},%S,%T::class.java,%S,${builder}))",
+                "rules.put(%S, %T.build(%T.${it.routeType}, %S, %T::class.java, %S, ${builder}))",
                 route.value,
                 RouterMeta::class,
                 RouterType::class,
