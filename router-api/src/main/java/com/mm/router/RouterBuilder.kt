@@ -238,7 +238,7 @@ class RouterBuilder(
                     e.printStackTrace()
                     false as T
                 } catch (e: Exception) {
-                    throw IllegalArgumentException("The activity return type [$] is fixed to the bool type")
+                    throw IllegalArgumentException("The activity return type is fixed to the bool type")
                 }
             }
 

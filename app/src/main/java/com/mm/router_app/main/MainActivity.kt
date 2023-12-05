@@ -1,12 +1,14 @@
 package com.mm.router_app.main
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import android.widget.Button
 import android.widget.EditText
 import android.widget.Spinner
 import android.widget.TextView
@@ -24,7 +26,7 @@ import com.mm.router_app.provider.IServiceProvider
 import com.mm.router_app.provider.ServiceProviderImpl
 
 
-@RouterPath("com.mm.main", interceptor = ["router"], des = "主页面")
+@RouterPath("com.mm.main", interceptor = ["/"], des = "主页面")
 class MainActivity : FragmentActivity() {
 
     @Autowired
@@ -98,18 +100,28 @@ class MainActivity : FragmentActivity() {
         stringBuilder.append("\n\n").append(provider?.message())
         textView.text = stringBuilder
 
+        findViewById<Button>(R.id.finish).visibility = if (intent.getBooleanExtra("result_ok", false)) View.VISIBLE else View.GONE
+
+        //模拟跳转后需要处理特别逻辑问题
+        findViewById<Button>(R.id.finish).setOnClickListener {
+            setResult(RESULT_OK)
+            finish()
+        }
+
         //startActivityForResult
         findViewById<View>(R.id.open_second).setOnClickListener {
             Router.init().open("com.mm.second").withString("string", editText.text.toString()).withInt("age", 100)
                 .withBoolean("bol", true).navigationResult {
-                    //路由执行完毕
+                    //路由执行完毕并返回信息
                     it.onArrival { result ->
-                        val string = result.data?.getStringExtra("string")
-                        val bol = result.data?.getBooleanExtra("bol", false)
-                        val age = result.data?.getIntExtra("age", 0)
-                        val msg = "ActivityResultCallback string:$string; bol:$bol; age:$age"
-                        stringBuilder.append("\n\n").append(msg)
-                        textView.text = stringBuilder
+                        if (result.resultCode == Activity.RESULT_OK) {
+                            val string = result.data?.getStringExtra("string")
+                            val bol = result.data?.getBooleanExtra("bol", false)
+                            val age = result.data?.getIntExtra("age", 0)
+                            val msg = "ActivityResultCallback string:$string; bol:$bol; age:$age"
+                            stringBuilder.append("\n\n").append(msg)
+                            textView.text = stringBuilder
+                        }
                     }
 
                     //路由被中断、通过在[Interceptor]中执行chain.interrupt()方法

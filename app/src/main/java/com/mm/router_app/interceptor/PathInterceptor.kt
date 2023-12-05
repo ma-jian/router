@@ -1,5 +1,6 @@
 package com.mm.router_app.interceptor
 
+import android.app.Activity
 import android.content.Intent
 import android.util.Log
 import com.mm.router.Router
@@ -25,8 +26,11 @@ class PathInterceptor : Interceptor {
         )
         if (meta.path == "com.mm.second") {
             chain.interrupt()
-            Router.init().open("com.mm.main").navigation() {
-                chain.proceed(meta, intent)
+            Router.init().open("com.mm.main").withBoolean("result_ok", true).navigation {
+                Log.e("Router_", "main: resultCode:${it.resultCode}")
+                if (it.resultCode == Activity.RESULT_OK) {
+                    chain.proceed(meta, intent)
+                }
             }
             return
         }
