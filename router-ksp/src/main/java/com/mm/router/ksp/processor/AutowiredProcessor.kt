@@ -36,8 +36,6 @@ import com.squareup.kotlinpoet.ksp.writeTo
 class AutowiredProcessor(private val logger: KSPLogger, private val codeGenerator: CodeGenerator) :
     SymbolProcessor {
     private val NAME_OF_AUTOWIRED = "\$\$Autowired"
-    private val TAG = "Router"
-    private val AndroidLog = ClassName("android.util", "Log")
 
     override fun process(resolver: Resolver): List<KSAnnotated> {
         val symbol = resolver.getSymbolsWithAnnotation(Autowired::class.qualifiedName!!)
@@ -93,11 +91,8 @@ class AutowiredProcessor(private val logger: KSPLogger, private val codeGenerato
                 // Validator
                 if (autowired.required) {  // Primitive wont be check.
                     funSpecBuild.beginControlFlow("if (null == substitute.$fieldName)")
-                    funSpecBuild.addStatement(
-                        "%T.e(\"$TAG\", \"The field '$fieldName' is null, in class %T\")",
-                        AndroidLog,
-                        target
-                    )
+                    funSpecBuild.addStatement("throw IllegalArgumentException(\"The field '$fieldName' is required and cannot be null," +
+                            " in class \" + %T::class.java)",target)
                     funSpecBuild.endControlFlow()
                 }
             }

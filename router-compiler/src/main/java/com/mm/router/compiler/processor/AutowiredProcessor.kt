@@ -100,10 +100,8 @@ class AutowiredProcessor : IProcessor {
                     if (fieldConfig.required && !element.asType().kind.isPrimitive) {  // Primitive wont be check.
                         injectMethodBuilder.beginControlFlow("if (null == substitute.$fieldName)")
                         injectMethodBuilder.addStatement(
-                            "\$T.e(\"$TAG\", \"The field '$fieldName' is null, in class '\" + \$T.class.getName() + \"!\")",
-                            AndroidLog,
-                            ClassName.get(parent)
-                        )
+                            "throw new IllegalArgumentException(\"The field '$fieldName' is required and cannot be null," +
+                                    " in class \" + \$T.class)", ClassName.get(parent))
                         injectMethodBuilder.endControlFlow()
                     }
                 }
