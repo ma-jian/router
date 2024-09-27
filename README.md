@@ -3,20 +3,24 @@
 Activity Result API 方式启动的路由管理器
 
 ```groovy
-implementation 'io.github.ma-jian:router-api:1.0.3'
+implementation 'io.github.ma-jian:router-api:1.0.5'
+
 // kapt处理
-kapt 'io.github.ma-jian:router-compiler:1.0.3'
+kapt 'io.github.ma-jian:router-compiler:1.0.5'
 // or ksp  kt代码优先使用ksp方式提升编译速度
 plugins {
     id 'com.google.devtools.ksp'
 }
 
-
-
-ksp 'io.github.ma-jian:router-ksp:1.0.3'
+ksp 'io.github.ma-jian:router-ksp:1.0.5'
 ```
 
 ### **CHANGELOG**
+
+#### v1.0.5
+
+1. 修改@Autowired 字段为必填时的错误提示
+2. 修改其他bug
 
 #### v1.0.3
 
@@ -84,7 +88,7 @@ val autowiredService = Router.init(this).open("/router/service/autowired").doPro
  * 标记对外接口
  */
 @ServiceProvider("/service/provider")
-class ServiceProviderImpl constructor(
+class ServiceProviderImpl (
     private val string: String,
     private val int: Int,
     private val log: Long,
@@ -94,7 +98,7 @@ class ServiceProviderImpl constructor(
 }
 
 //获取接口实例
-val provider = Router.init().open("/service/provider").doProvider<IServiceProvider>()
+val provider = Router.init().open("/service/provider").doProvider<IServiceProvider>("",1,2L,false)
 ```
 
 @RouterInterceptor
