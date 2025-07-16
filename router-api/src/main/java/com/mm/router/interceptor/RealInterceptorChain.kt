@@ -9,10 +9,10 @@ import com.mm.router.annotation.model.RouterMeta
  * @since 1.0.2
  */
 class RealInterceptorChain(
-    private inline val router: RouterMeta,
-    private inline val interceptors: List<Interceptor>,
-    private inline val index: Int,
-    private inline val interceptorBuilder: InterceptorBuilder
+    private val router: RouterMeta,
+    private val interceptors: List<Interceptor>,
+    private val index: Int,
+    private val interceptorBuilder: InterceptorBuilder,
 ) : Interceptor.Chain {
 
     internal fun copy(
@@ -25,16 +25,17 @@ class RealInterceptorChain(
     override fun proceed(meta: RouterMeta, intent: Intent) {
         if (index < interceptors.size) {
             // Call the next interceptor in the chain.
-            val next = copy(index = index + 1, meta)
-            val interceptor = interceptors[index]
-            interceptor.intercept(next, intent)
+            val chain = copy(index = index + 1, meta)
+            val nextInterceptor = interceptors[index]
+            nextInterceptor.intercept(chain, intent)
         } else {
             interceptorBuilder.proceed?.invoke(meta)
         }
     }
 
-    override fun interrupt() {
-        interceptorBuilder.interrupt?.invoke()
+    override fun interrupt(reason: String?) {
+        val interceptor = interceptors[index - 1]
+        interceptorBuilder.interrupt?.invoke(reason, interceptor::class.java.name)
     }
 
     override fun interceptors(): List<Interceptor> = interceptors

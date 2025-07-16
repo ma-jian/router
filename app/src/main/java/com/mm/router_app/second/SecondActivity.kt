@@ -34,8 +34,9 @@ class SecondActivity : FragmentActivity() {
         Router.init(this).autoWired(this)
         val textView = findViewById<TextView>(R.id.message)
         val editText = findViewById<EditText>(R.id.edit)
+        val extras = intent.extras.toString()
         val stringBuilder = StringBuilder()
-        stringBuilder.append("age:$age; string:$string; bol:$bol")
+        stringBuilder.append("age:$age; string:$string; bol:$bol; extras:$extras")
         textView.text = stringBuilder
 
         val provider = Router.init().open(IServiceProvider::class.java).doProvider<IServiceProvider>()

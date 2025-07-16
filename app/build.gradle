@@ -12,8 +12,8 @@ android {
         applicationId "com.mm.router_app"
         minSdkVersion rootProject.minSdk
         targetSdkVersion rootProject.targetSdk
-        versionCode 3
-        versionName "1.0.3"
+        versionCode 4
+        versionName "1.1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -44,6 +44,10 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
+
+    kotlinOptions {
+        jvmTarget = '11'
+    }
 }
 
 ksp {
@@ -53,8 +57,8 @@ ksp {
 dependencies {
     api "androidx.core:core-ktx:1.10.0"
     api "androidx.appcompat:appcompat:1.6.1"
-    implementation 'io.github.ma-jian:router-api:1.0.5'
-    ksp 'io.github.ma-jian:router-ksp:1.0.5'
+    implementation 'io.github.ma-jian:router-api:1.1.0'
+    ksp 'io.github.ma-jian:router-ksp:1.1.0'
 //    implementation project(":router-api")
 //    kapt project(":router-compiler")
 //    ksp project(":router-ksp")

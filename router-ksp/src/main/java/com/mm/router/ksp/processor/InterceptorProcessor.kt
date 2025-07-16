@@ -59,7 +59,7 @@ class InterceptorProcessor(
     }
 
     private fun parseRoute(elements: List<KSClassDeclaration>) {
-        val map = ClassName("java.util", "HashMap")
+        val map = ClassName("java.util.concurrent", "ConcurrentHashMap")
         val parameterSpec = ParameterSpec.builder(
             "interceptors", map.parameterizedBy(
                 STRING, RouterMeta::class.asTypeName()

@@ -1,6 +1,7 @@
 package com.mm.router
 
 import com.mm.router.annotation.model.RouterMeta
+import java.util.concurrent.ConcurrentHashMap
 
 
 /**
@@ -8,6 +9,5 @@ import com.mm.router.annotation.model.RouterMeta
  * @since 1.0
  */
 interface IRouterRulesCreator {
-
-    fun initRule(rules: HashMap<String, RouterMeta>)
+    fun initRule(rules: ConcurrentHashMap<String, RouterMeta>, allRuleKeys: MutableSet<String>)
 }

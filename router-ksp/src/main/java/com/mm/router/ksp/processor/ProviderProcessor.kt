@@ -29,6 +29,7 @@ import com.squareup.kotlinpoet.ParameterSpec
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.STRING
 import com.squareup.kotlinpoet.TypeSpec
+import com.squareup.kotlinpoet.asClassName
 import com.squareup.kotlinpoet.asTypeName
 import com.squareup.kotlinpoet.ksp.writeTo
 
@@ -54,14 +55,17 @@ class ProviderProcessor(private val logger: KSPLogger, private val codeGenerator
     }
 
     private fun parseProvider(elements: List<KSClassDeclaration>) {
-        val map = ClassName("java.util", "HashMap")
+        val map = ClassName("java.util.concurrent", "ConcurrentHashMap")
         val parameterSpec = ParameterSpec.builder(
-            "rules", map.parameterizedBy(
-                STRING, RouterMeta::class.asTypeName()
-            ).copy(nullable = false)
+            "rules", map.parameterizedBy(STRING, RouterMeta::class.asTypeName()).copy(nullable = false)
+        ).build()
+        val set = ClassName("kotlin.collections", "MutableSet")
+        val allRuleKeysParam = ParameterSpec.builder(
+            "allRuleKeys",
+            set.parameterizedBy(String::class.asTypeName()).copy(nullable = false)
         ).build()
 
-        val funSpecBuild = FunSpec.builder("initRule").addModifiers(KModifier.OVERRIDE).addParameter(parameterSpec)
+        val funSpecBuild = FunSpec.builder("initRule").addModifiers(KModifier.OVERRIDE).addParameter(parameterSpec).addParameter(allRuleKeysParam)
         var packageName: String = javaClass.getPackage().name
 
         val groupFileDependencies = mutableSetOf<KSFile>()
@@ -84,6 +88,8 @@ class ProviderProcessor(private val logger: KSPLogger, private val codeGenerator
                     it.qualifiedName!!.asString().quantifyNameToClassName(),
                     des
                 )
+                // 添加：将 path 添加到 allRuleKeys
+                funSpecBuild.addStatement("allRuleKeys.add(%S)", value)
             } else {
                 throw RuntimeException("The @ServiceProvider is marked on unsupported class, look at [$qualifiedName] and The superclass type is ${it.kindType()}" +
                         ", that must be an interface")

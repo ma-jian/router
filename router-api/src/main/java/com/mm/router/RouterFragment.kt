@@ -2,14 +2,19 @@ package com.mm.router
 
 import android.Manifest
 import android.app.Activity
+import android.app.ActivityOptions
+import androidx.core.app.ActivityOptionsCompat
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Build
+import android.os.Bundle
 import android.os.Environment
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultCallback
+import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
@@ -31,7 +36,7 @@ class RouterFragment : Fragment() {
     private lateinit var mapBooleanCallback: ActivityResultCallback<Map<String, Boolean>>
 
     /**
-     * launcher of StartActivityForResult
+     * launcher of StartActivityForResult (统一处理所有Activity启动)
      */
     private val activityLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
         if (checkResultForGC("StartActivityForResult")) {
@@ -165,12 +170,15 @@ class RouterFragment : Fragment() {
     /**
      * 执行路由跳转到指定页面并返回结果
      * execute the route, jump to the specified page and return the result
+     * @param intent the intent to launch
      * @param callback the activity result callback
+     * @param options the activity options for animations (optional)
      */
-    fun navigation(intent: Intent, callback: ActivityResultCallback<ActivityResult>): Boolean {
+    fun navigation(intent: Intent, callback: ActivityResultCallback<ActivityResult>, options: ActivityOptionsCompat? = null): Boolean {
         this.resultCallback = callback
         return checkIntent(intent) {
-            activityLauncher.launch(intent)
+            // 使用ActivityOptionsCompat启动以支持动画效果
+            activityLauncher.launch(intent, options)
         }
     }
 

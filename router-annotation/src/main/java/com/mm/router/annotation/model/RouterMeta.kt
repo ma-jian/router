@@ -44,4 +44,8 @@ class RouterMeta private constructor(
             return RouterMeta(type, destination?.name ?: "", destination, "", arrayOf())
         }
     }
+
+    override fun toString(): String {
+        return "type:$type; path:$path; destination:$destination; des:$des; interceptors:$interceptors; priority:$priority"
+    }
 }

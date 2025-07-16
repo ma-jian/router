@@ -54,14 +54,20 @@ class RouterProcessor(private val logger: KSPLogger, private val codeGenerator: 
     }
 
     private fun parseRoute(elements: List<KSClassDeclaration>) {
-        val map = ClassName("java.util", "HashMap")
+        val map = ClassName("java.util.concurrent", "ConcurrentHashMap")
         val parameterSpec = ParameterSpec.builder(
             "rules", map.parameterizedBy(
-                STRING, RouterMeta::class.asTypeName()
+                STRING,
+                RouterMeta::class.asTypeName()
             ).copy(nullable = false)
         ).build()
+        val set = ClassName("kotlin.collections", "MutableSet")
+        val allRuleKeysParam = ParameterSpec.builder(
+            "allRuleKeys",
+            set.parameterizedBy(String::class.asTypeName()).copy(nullable = false)
+        ).build()
 
-        val funSpecBuild = FunSpec.builder("initRule").addModifiers(KModifier.OVERRIDE).addParameter(parameterSpec)
+        val funSpecBuild = FunSpec.builder("initRule").addModifiers(KModifier.OVERRIDE).addParameter(parameterSpec).addParameter(allRuleKeysParam)
         val name = elements[0].qualifiedName?.asString() ?: elements[0].packageName.asString()
         val packageName = name.substring(0, name.lastIndexOf("."))
         val groupFileDependencies = mutableSetOf<KSFile>()
@@ -89,6 +95,8 @@ class RouterProcessor(private val logger: KSPLogger, private val codeGenerator: 
                 it.qualifiedName!!.asString().quantifyNameToClassName(),
                 route.des
             )
+            // 添加：将 path 添加到 allRuleKeys
+            funSpecBuild.addStatement("allRuleKeys.add(%S)", route.value)
             it.containingFile?.let { file ->
                 groupFileDependencies.add(file)
             }
@@ -99,7 +107,7 @@ class RouterProcessor(private val logger: KSPLogger, private val codeGenerator: 
                 TypeSpec.classBuilder(ClassName(packageName, className))
                     .addSuperinterface(IROUTER_CREATOR.quantifyNameToClassName())
                     .addFunction(funSpecBuild.build())
-                    .addKdoc(CodeBlock.of("$WARNING_TIPS\n自动收集 [${RouterPath::class.qualifiedName}] 路由"))
+                    .addKdoc(CodeBlock.of("$WARNING_TIPS\n自动收集 [${RouterPath::class.qualifiedName}] 路由表"))
                     .addAnnotation(
                         AnnotationSpec.builder(AutoService::class)
                             .addMember(

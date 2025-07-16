@@ -6,37 +6,44 @@ import android.app.Application
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.text.TextUtils
 import android.util.ArrayMap
+import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import com.mm.router.annotation.model.RouterMeta
 import com.mm.router.annotation.model.RouterType
+import com.mm.router.cache.RouterCache
 import com.mm.router.service.AutowiredService
 
 /**
- * 匹配处理需要打开的url地址
- *
- * URL address to be opened activity for matching processing
- * @since 1.0
+ * 路由中间层
+ * 负责处理具体的路由操作，保持高性能和可读性
  */
-
 class RouterMediator {
     companion object {
         const val INTENT_KEY_ROUTE_URL = "router_route_url"
-        const val INTENT_EXTRA_ROUTE_URL = "intent_extra_route_url" //app启动后再次开启的额外路由
+        const val INTENT_EXTRA_ROUTE_URL = "intent_extra_route_url"
     }
 
     private var activity: FragmentActivity? = null
     private var fragment: Fragment? = null
+    private val cache: RouterCache
 
-    constructor(activity: FragmentActivity) {
+    /**
+     * 使用Activity创建路由中介者
+     */
+    constructor(activity: FragmentActivity, cache: RouterCache) {
         this.activity = activity
+        this.cache = cache
     }
 
-    constructor(fragment: Fragment) {
+    /**
+     * 使用Fragment创建路由中介者
+     */
+    constructor(fragment: Fragment, cache: RouterCache) {
         this.fragment = fragment
+        this.cache = cache
     }
 
     private val currentContext: FragmentActivity?
@@ -56,62 +63,42 @@ class RouterMediator {
 
     private fun autoService(any: Any) {
         val autowiredService = open("/router/service/autowired").doProvider<AutowiredService>()
+        Router.LogW("RouterMediator autoService: $autowiredService")
         autowiredService?.init(currentContext!!)
         autowiredService?.autoWired(any)
     }
 
     /**
-     * 打开指定intent页面
-     *
-     * will open activity by intent
-     * @param intent open intent
+     * 打开指定Intent页面
      */
     fun open(intent: Intent): RouterBuilder {
+        Router.LogW("RouterMediator open intent: $intent")
         return RouterBuilder(
             activity,
             fragment,
             intent,
-            RouterMeta.build(RouterType.ACTIVITY, Class.forName(intent.component!!.className))
-        )
+            RouterMeta.build(RouterType.ACTIVITY, Class.forName(intent.component!!.className)),
+            cache)
     }
 
     /**
-     * 打开指定 [ComponentName] 页面
-     *
-     * will open activity by ComponentName
-     * @param componentName a ComponentName to be opened
-     */
-    fun open(componentName: ComponentName): RouterBuilder {
-        val intent = Intent()
-        intent.component = componentName
-        return RouterBuilder(
-            activity,
-            fragment,
-            intent,
-            RouterMeta.build(RouterType.ACTIVITY, Class.forName(componentName.className))
-        )
-    }
-
-    /**
-     * 打开指定 [RouterMeta.path] 页面
-     *
-     * will open activity by path
-     * @param url an address to be opened
+     * 打开指定路径的页面
      */
     fun open(url: String): RouterBuilder {
         val meta = findRouterMeta(url)
+        Router.LogW("RouterMediator open url: $url;meta: $meta")
         val intent = openLocalUrl(currentContext, meta)
-        return RouterBuilder(activity, fragment, intent, meta)
+        return RouterBuilder(activity, fragment, intent, meta, cache)
     }
 
     /**
-     * 打开Activity页面或者获取 [com.mm.router.annotation.ServiceProvider] 标记的接口
-     * @param clazz
+     * 打开Activity页面或者获取ServiceProvider标记的接口
      */
     fun open(clazz: Class<*>): RouterBuilder {
         val meta = findRouterMeta(clazz)
+        Router.LogW("RouterMediator open clazz: $clazz;meta: $meta")
         val intent = openLocalUrl(currentContext, meta)
-        return RouterBuilder(activity, fragment, intent, meta)
+        return RouterBuilder(activity, fragment, intent, meta, cache)
     }
 
     /**
@@ -127,7 +114,7 @@ class RouterMediator {
         return currentContext?.let {
             if (isAppAlive(it) != 0) {
                 val intent = openLocalUrl(currentContext, meta)
-                RouterBuilder(activity, fragment, intent, meta)
+                RouterBuilder(activity, fragment, intent, meta, cache)
             } else {
                 val launchIntent = it.packageManager.getLaunchIntentForPackage(it.packageName)
                 if (launchIntent == null) {
@@ -145,50 +132,58 @@ class RouterMediator {
                         intent.component = ComponentName(packageName, className)
                         intent.putExtra(INTENT_EXTRA_ROUTE_URL, url)
                         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                        RouterBuilder(activity, fragment, intent, RouterMeta.build(RouterType.ACTIVITY, Class.forName(className)))
+                        RouterBuilder(activity, fragment, intent, RouterMeta.build(RouterType.ACTIVITY, Class.forName(className)), cache)
                     } else {
                         RouterBuilder(
                             activity,
                             fragment,
                             Intent(Intent.ACTION_MAIN),
-                            RouterMeta.build(RouterType.ACTIVITY, null)
+                            RouterMeta.build(RouterType.ACTIVITY, null),
+                            cache
                         )
                     }
                 } else {
                     launchIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                     launchIntent.putExtra(INTENT_EXTRA_ROUTE_URL, url)
-                    RouterBuilder(activity, fragment, launchIntent, RouterMeta.build(RouterType.ACTIVITY, null))
+                    RouterBuilder(activity, fragment, launchIntent, RouterMeta.build(RouterType.ACTIVITY, null), cache)
                 }
             }
         } ?: RouterBuilder(
             activity,
             fragment,
             Intent(Intent.ACTION_VIEW),
-            RouterMeta.build(RouterType.ACTIVITY, null)
+            RouterMeta.build(RouterType.ACTIVITY, null),
+            cache
         )
     }
 
     /**
-     * find [RouterMeta] by url
+     * 查找路由元数据
      */
     private fun findRouterMeta(url: String): RouterMeta {
-        //1 是否系统默认路径
+        // 1. 检查是否为系统默认路径
         if (Router.systemPath.contains(url)) {
             return RouterMeta.build(RouterType.SYSTEM_ACTIVITY, url, null)
         }
-        //2 是否注册url - class
+
+        // 2. 使用Router的优化查找方法
+        Router.findRouteMeta(url)?.let { return it }
+
+        // 3. 兼容旧的查找逻辑
         val matchRuleKey = getMatchRuleKey(url)
-        return Router.rules[matchRuleKey] ?: RouterMeta.build(RouterType.UNKNOWN, null)
+        Router.rules[matchRuleKey]?.let { return it }
+
+        return RouterMeta.build(RouterType.UNKNOWN, url,null)
     }
 
     /**
      * find [RouterMeta] by class
      */
     private fun findRouterMeta(clazz: Class<*>): RouterMeta {
-        Router.rules.forEach {
-            it.value.destination?.let { destination ->
+        Router.rules.forEach { (_, value) ->
+            value.destination?.let { destination ->
                 if (clazz.isAssignableFrom(destination)) {
-                    return it.value
+                    return value
                 }
             }
         }
@@ -247,13 +242,13 @@ class RouterMediator {
      */
     private fun getMatchRuleKey(url: String?): String {
         if (url == null) return ""
-        val checkUrl = Uri.parse(url)
+        val checkUrl = url.toUri()
         val checkScheme = checkUrl.scheme
         val checkHost = checkUrl.host
         val checkPath = checkUrl.path
         val checkParameterNames = checkUrl.queryParameterNames
         for (ruleKey in Router.allRuleKeys) {
-            val ruleUri = Uri.parse(ruleKey)
+            val ruleUri = ruleKey.toUri()
 
             if (ruleUri.scheme?.equals(checkScheme, true) != true || ruleUri.host?.equals(
                     checkHost, true
@@ -288,7 +283,7 @@ class RouterMediator {
         if (TextUtils.isEmpty(url)) {
             return params
         }
-        val parse = Uri.parse(url)
+        val parse = url!!.toUri()
         parse.queryParameterNames.forEach { key ->
             params[key] = parse.getQueryParameter(key)
         }

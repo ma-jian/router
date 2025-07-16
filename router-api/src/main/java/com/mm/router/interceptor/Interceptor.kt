@@ -32,7 +32,7 @@ fun interface Interceptor {
         /**
          * 中断路由操作
          */
-        fun interrupt()
+        fun interrupt(reason: String? = null)
 
         fun interceptors(): List<Interceptor>
 

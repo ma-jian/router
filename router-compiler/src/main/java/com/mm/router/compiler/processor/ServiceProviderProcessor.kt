@@ -20,7 +20,6 @@ import javax.annotation.processing.RoundEnvironment
 import javax.lang.model.element.Element
 import javax.lang.model.element.ElementKind
 import javax.lang.model.element.Modifier
-import javax.lang.model.element.TypeElement
 import javax.lang.model.type.DeclaredType
 import javax.lang.model.type.TypeMirror
 import javax.lang.model.util.ElementFilter
@@ -46,12 +45,20 @@ class ServiceProviderProcessor : IProcessor {
                 return
             }
             val parameterizedTypeName: ParameterizedTypeName = ParameterizedTypeName.get(
-                ClassName.get(HashMap::class.java), ClassName.get(String::class.java), ClassName.get(RouterMeta::class.java)
+                ClassName.get("java.util.concurrent", "ConcurrentHashMap"),
+                ClassName.get(String::class.java), ClassName.get(RouterMeta::class.java)
             )
             val parameterSpec: ParameterSpec = ParameterSpec.builder(parameterizedTypeName, "rules").build()
+            // 添加第二个参数：allRuleKeys (MutableSet<String>)
+            val setParameterizedTypeName: ParameterizedTypeName = ParameterizedTypeName.get(
+                ClassName.get(MutableSet::class.java),
+                ClassName.get(String::class.java)
+            )
+            val allRuleKeysParameterSpec: ParameterSpec = ParameterSpec.builder(setParameterizedTypeName, "allRuleKeys").build()
             val methodSpecBuilder: MethodSpec.Builder =
                 MethodSpec.methodBuilder("initRule").addAnnotation(Override::class.java).addModifiers(Modifier.PUBLIC)
                     .addParameter(parameterSpec)
+                    .addParameter(allRuleKeysParameterSpec)
             var packageName: String = javaClass.getPackage().name
             for (typeElement in ElementFilter.typesIn(roundEnv.getElementsAnnotatedWith(ServiceProvider::class.java))) {
                 if (typeElement.kind != ElementKind.CLASS) {

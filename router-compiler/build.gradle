@@ -4,13 +4,16 @@ plugins {
     id 'kotlin-kapt'
 }
 java {
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+}
+compileKotlin {
+    kotlinOptions.jvmTarget = '11'
 }
 
 dependencies {
 //    implementation project(":router-annotation")
-    implementation "io.github.ma-jian:router-annotation:1.0.2"
+    implementation "io.github.ma-jian:router-annotation:1.1.0"
     implementation 'com.google.auto.service:auto-service:1.0.1'
     kapt 'com.google.auto.service:auto-service:1.0.1'
     implementation 'com.squareup:javapoet:1.13.0'

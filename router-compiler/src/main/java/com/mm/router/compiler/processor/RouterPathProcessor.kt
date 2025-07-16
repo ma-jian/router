@@ -44,15 +44,24 @@ class RouterPathProcessor : IProcessor {
                 return
             }
             val parameterizedTypeName: ParameterizedTypeName = ParameterizedTypeName.get(
-                ClassName.get(HashMap::class.java),
+                ClassName.get("java.util.concurrent", "ConcurrentHashMap"),
                 ClassName.get(String::class.java),
                 ClassName.get(RouterMeta::class.java)
             )
             val parameterSpec: ParameterSpec = ParameterSpec.builder(parameterizedTypeName, "rules").build()
+
+            // 添加第二个参数：allRuleKeys (MutableSet<String>)
+            val setParameterizedTypeName: ParameterizedTypeName = ParameterizedTypeName.get(
+                ClassName.get(MutableSet::class.java),
+                ClassName.get(String::class.java)
+            )
+            val allRuleKeysParameterSpec: ParameterSpec = ParameterSpec.builder(setParameterizedTypeName, "allRuleKeys").build()
+
             val methodSpecBuilder: MethodSpec.Builder = MethodSpec.methodBuilder("initRule")
                 .addAnnotation(Override::class.java)
                 .addModifiers(Modifier.PUBLIC)
                 .addParameter(parameterSpec)
+                .addParameter(allRuleKeysParameterSpec)
             val activityTm: TypeMirror = elementUtils.getTypeElement(IProcessor.ACTIVITY).asType()
             val fragmentX: TypeMirror = elementUtils.getTypeElement(IProcessor.FRAGMENT_X).asType()
             val fragmentTm: TypeMirror = elementUtils.getTypeElement(IProcessor.FRAGMENT).asType()
@@ -109,6 +118,8 @@ class RouterPathProcessor : IProcessor {
                     typeElement,
                     router.des
                 )
+                // 添加路由路径到allRuleKeys集合
+                methodSpecBuilder.addStatement("allRuleKeys.add(\$S)", router.value)
             }
             val methodSpec: MethodSpec = methodSpecBuilder.build()
             val moduleName = abstractProcessor.moduleName
@@ -126,7 +137,7 @@ class RouterPathProcessor : IProcessor {
                 )
                 .addSuperinterface(ClassName.get(abstractProcessor.mElements.getTypeElement(BaseAbstractProcessor.ROUTER_INTERFACE_PATH)))
                 .addMethod(methodSpec)
-                .addJavadoc(CodeBlock.of("$WARNING_TIPS\n自动收集 {@link \$T} 路由", RouterPath::class.java))
+                .addJavadoc(CodeBlock.of("$WARNING_TIPS\n自动收集 {@link \$T} 路由表", RouterPath::class.java))
                 .build()
             JavaFile.builder(packageName, typeSpec).build().writeTo(abstractProcessor.mFiler)
         } catch (e: IOException) {

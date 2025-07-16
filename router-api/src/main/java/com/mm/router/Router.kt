@@ -5,29 +5,56 @@ import androidx.annotation.StringDef
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import com.mm.router.annotation.model.RouterMeta
+import com.mm.router.cache.RouterCache
+import com.mm.router.fallback.FallbackHandler
+import java.util.concurrent.ConcurrentHashMap
 
 /**
+ * 路由框架 - 基于 ActivityResult API
+ * 核心特性：
+ * - 🚀 基于注解的路由注册，编译时生成路由表
+ * - 🔄 拦截器系统，支持路由拦截和自定义处理
+ * - 💉 自动依赖注入，简化参数传递
+ * - 🏭 服务提供者模式，解耦模块间通信
+ * - 📱 系统功能集成，统一API调用系统服务
+ * - 🚨 错误处理和降级策略
+ * - ⚡ 高性能缓存机制
+ * - 🔒 线程安全设计
+ * - 📝 调试日志输出
  *
- * 自定义url路由 采用 Result Api 的方式打开指定页面
+ * 使用示例：
+ * ```kotlin
+ * // 基本路由跳转
+ * Router.init(this).open("/user/detail").withString("userId", "123").navigation()
  *
- * 规则：
- * scheme  host  path  params
+ * // 带结果回调的跳转
+ * Router.init(this).open("/user/edit").navigation { result ->
+ *     if (result.resultCode == RESULT_OK) {
+ *         // 处理返回结果
+ *     }
+ * }
+ * // 带路由执行结果的跳转
+ * Router.init().open("/user/mine").navigationResult {
+ *      //路由执行完毕并返回信息
+ *      it.onSuccess { result ->
  *
- * app://app.com/login?name={name}&age={age}
+ *      }
+ *      //路由被中断、通过在[Interceptor]中执行chain.interrupt()方法
+ *      it.onIntercepted {
  *
- * 1、注册添加规则 [Router.addRouterRule]
+ *      }
+ *      //路由执行失败,返回值:true执行当前降级逻辑，false执行默认降级逻辑
+ *      it.onFailure {
+ *         false
+ *      }
+ *   }
  *
- * 2、打开指定的url [RouterMediator.open]
+ * // 服务提供者获取
+ * val userService = Router.init().open("/service/user").doProvider<UserService>()
+ * ```
  *
- * 3、支持通过 [RouterMediator.open] 打开非路由管理页面
- *
- * 4、支持通过 [RouterMediator.open] 打开intent
- *
- * 5、默认提供的系统页面 [Router.Path]
- *
- * 6、支持通过 [com.mm.router.annotation.RouterInterceptor] 添加路由拦截器
- *
- * @since 1.0 Activity 跳转升级为 Activity Result API 的方式
+ * @since 1.0 Activity 跳转升级为 ActivityResult API 的方式
+ * @since 1.1 新增缓存、错误处理、降级策略
  */
 object Router {
     /**
@@ -70,7 +97,7 @@ object Router {
     /**
      * 默认支持的系统跳转路径
      */
-    internal val systemPath = arrayListOf(
+    internal val systemPath = setOf(
         Path.ACTION_CONTENT,
         Path.ACTION_MULTI_CONTENT,
         Path.ACTION_TAKE_PIC_PREVIEW,
@@ -88,82 +115,143 @@ object Router {
     internal const val TAG = "Router_"
 
     /**
-     * A collection of storage rules
-     *
-     * url --- activity clazz 映射
+     * 路由规则存储
      */
-    internal val rules = HashMap<String, RouterMeta>()
-    internal val allRuleKeys: MutableSet<String> = HashSet()
+    internal val rules = ConcurrentHashMap<String, RouterMeta>()
 
     /**
-     * router interceptors
+     * 所有路由路径的集合
      */
-    internal val interceptors = HashMap<String, RouterMeta>()
+    internal val allRuleKeys = mutableSetOf<String>()
 
     /**
-     * Init Router to make everything prepare to work.
-     *
-     * @param activity An instance of FragmentActivity
+     * 路由拦截器存储
+     */
+    internal val interceptors = ConcurrentHashMap<String, RouterMeta>()
+
+    /**
+     * 路由缓存管理器
+     */
+    private val cache: RouterCache by lazy { RouterCache(100) }
+
+    /**
+     * 调试模式开关
+     */
+    @Volatile
+    var debugMode: Boolean = false
+
+    /**
+     * 降级策略开关
+     */
+    @Volatile
+    var enableFallback: Boolean = false
+
+    //降级策略
+    @Volatile
+    internal var fallbackHandler: FallbackHandler? = null
+
+    /**
+     * 使用指定Activity初始化路由器
      */
     @JvmStatic
     fun init(activity: FragmentActivity): RouterMediator {
-        return RouterMediator(activity)
+        return RouterMediator(activity, cache)
     }
 
     /**
-     * Init Router to make everything prepare to work.
-     *
-     * @param fragment An instance of Fragment
+     * 使用指定Fragment初始化路由器
      */
     @JvmStatic
     fun init(fragment: Fragment): RouterMediator {
-        return RouterMediator(fragment)
+        return RouterMediator(fragment, cache)
     }
 
     /**
-     * Init Router to make everything prepare to work.
-     *
-     * user current task topActivity
+     * 使用当前栈顶Activity初始化路由器
      */
     @JvmStatic
     fun init(): RouterMediator {
         val delegate = RouterActivityLifecycle.delegate.get()
         if (delegate?.activity != null) {
-            return if (delegate.activity is FragmentActivity) {
-                RouterMediator((delegate.activity as FragmentActivity))
+            if (delegate.activity is FragmentActivity) {
+                return RouterMediator(delegate.activity as FragmentActivity, cache)
             } else {
                 throw IllegalArgumentException(
-                    "The current Stack Top Activity:[" + delegate.activity!!.javaClass.name + "] Not extends FragmentActivity," +
-                            " Use a different initialization method Or modify the current ${delegate.activity!!.javaClass.name} extends FragmentActivity"
+                    "The current Stack Top Activity: [${delegate.activity!!.javaClass.name}] " +
+                            "does not extend FragmentActivity."
                 )
             }
         }
-        throw IllegalArgumentException("ActivityDelegate:[" + RouterActivityLifecycle::class.java.name + "] Not initialized")
+        throw IllegalArgumentException("ActivityDelegate:[${RouterActivityLifecycle::class.java.name}] Not initialized")
     }
 
     /**
-     * add router rules for annotation [com.mm.router.annotation.RouterPath]
-     *
-     * @param creator spi RouterCreator
+     * 添加路由规则
      */
     @JvmStatic
-    fun addRouterRule(creator: IRouterRulesCreator) {
-        creator.initRule(rules)
-        allRuleKeys.addAll(rules.keys)
+    internal fun addRouterRule(creator: IRouterRulesCreator) {
+        creator.initRule(rules, allRuleKeys)
     }
 
     /**
-     * add router interceptor for annotation [com.mm.router.annotation.RouterInterceptor]
-     *
-     * @param interceptor spi RouterInterceptor
+     * 添加路由拦截器
      */
     @JvmStatic
-    fun addRouterInterceptors(interceptor: IRouterInterceptor) {
+    internal fun addRouterInterceptors(interceptor: IRouterInterceptor) {
         interceptor.intercept(interceptors)
     }
 
+    /**
+     * 查找路由元数据
+     */
     @JvmStatic
-    internal fun LogE(s: String) {
-        Log.e(TAG, s)
+    internal fun findRouteMeta(path: String): RouterMeta? {
+        // 首先尝试从缓存获取
+        cache.getRouteMeta(path)?.let { return it }
+        // 直接查找
+        rules[path]?.let { meta ->
+            cache.putRouteMeta(path, meta)
+            return meta
+        }
+        return null
+    }
+
+    /**
+     * 添加路由降级策略
+     */
+    @JvmStatic
+    fun defaultFallback(handler: FallbackHandler) {
+        this.fallbackHandler = handler
+    }
+
+    /**
+     * 清除所有缓存
+     */
+    @JvmStatic
+    fun clearCache() {
+        cache.clear()
+        LogW("Router cache cleared")
+    }
+
+    // ========== 日志方法 ==========
+    @JvmStatic
+    internal fun LogW(message: String) {
+        if (debugMode) {
+            Log.w(TAG, message)
+        }
+    }
+
+    @JvmStatic
+    internal fun LogE(message: String) {
+        if (debugMode) {
+            Log.e(TAG, message)
+        }
+    }
+
+    @JvmStatic
+    internal fun LogE(message: String, throwable: Throwable) {
+        if (debugMode) {
+            Log.e(TAG, message, throwable)
+        }
     }
 }

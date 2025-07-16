@@ -15,19 +15,16 @@ import com.mm.router.interceptor.Interceptor
 class PathInterceptor : Interceptor {
 
     override fun intercept(chain: Interceptor.Chain, intent: Intent) {
-        val path = chain.path()
-        val interceptorClass = chain.interceptors()
-        val des = chain.des()
         val meta = chain.routerMeta()
         Log.e(
             "Router_",
-            "meta: ${meta.type}; ${meta.path}; ${meta.destination}; ${meta.interceptors.contentToString()}; ${meta.des}\n"
+            "PathInterceptor meta: ${meta.type}; ${meta.path}; ${meta.destination}; ${meta.interceptors.contentToString()}; ${meta.des}\n"
                     + "intent: ${intent.extras}"
         )
-        if (meta.path == "com.mm.second") {
+        if (meta.path == "com.mm.second3") {
             chain.interrupt()
-            Router.init().open("com.mm.main").withBoolean("result_ok", true).navigation {
-                Log.e("Router_", "main: resultCode:${it.resultCode}")
+            Router.init().open("com.mm.main2").withBoolean("result_ok", true).navigation {
+                Log.e("Router_", "PathInterceptor main: resultCode:${it.resultCode}")
                 if (it.resultCode == Activity.RESULT_OK) {
                     chain.proceed(meta, intent)
                 }

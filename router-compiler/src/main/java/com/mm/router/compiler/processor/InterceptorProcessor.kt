@@ -44,7 +44,7 @@ class InterceptorProcessor : IProcessor {
                 return
             }
             val parameterizedTypeName: ParameterizedTypeName = ParameterizedTypeName.get(
-                ClassName.get(HashMap::class.java),
+                ClassName.get("java.util.concurrent", "ConcurrentHashMap"),
                 ClassName.get(String::class.java),
                 ClassName.get(RouterMeta::class.java)
             )

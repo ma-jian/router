@@ -29,8 +29,12 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
+    }
+
+    kotlinOptions {
+        jvmTarget = '11'
     }
 }
 
@@ -40,8 +44,8 @@ ksp {
 
 dependencies {
     api 'com.google.auto.service:auto-service-annotations:1.0.1'
-    api "io.github.ma-jian:router-annotation:1.0.2"
-    ksp "io.github.ma-jian:router-ksp:1.0.5"
+    api "io.github.ma-jian:router-annotation:1.1.0"
+    ksp "io.github.ma-jian:router-ksp:1.1.0"
 //    api project(":router-annotation")
 //    ksp project(":router-ksp")
     compileOnly "androidx.appcompat:appcompat:1.6.1"

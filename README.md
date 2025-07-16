@@ -3,19 +3,24 @@
 Activity Result API 方式启动的路由管理器
 
 ```groovy
-implementation 'io.github.ma-jian:router-api:1.0.5'
+implementation 'io.github.ma-jian:router-api:1.1.0'
 
 // kapt处理
-kapt 'io.github.ma-jian:router-compiler:1.0.5'
+kapt 'io.github.ma-jian:router-compiler:1.1.0'
 // or ksp  kt代码优先使用ksp方式提升编译速度
 plugins {
     id 'com.google.devtools.ksp'
 }
 
-ksp 'io.github.ma-jian:router-ksp:1.0.5'
+ksp 'io.github.ma-jian:router-ksp:1.1.0'
 ```
 
 ### **CHANGELOG**
+#### v1.1.0
+
+1. 新增降级策略
+2. 新增错误处理
+3. 优化代码
 
 #### v1.0.5
 
@@ -54,17 +59,31 @@ Router.init().open(Router.Path.ACTION_CONTENT).navigation() {
     }
 }
 ```
+路由降级策略
+```kotlin
+Router.enableFallback = true
+Router.defaultFallback (object : FallbackHandler {
+   override fun handleFallback(path: String, bundle: Bundle?) {
+       Router.init().open("com.mm.second").withBundle(bundle).navigation()
+   }
+})
+```
+
 获取拦截器结果
 ```kotlin
-Router.init().open("com.mm.second").navigationResult {
-    //路由执行完毕
-    it.onArrival { result ->
-        //...
-    }
-    //路由被中断、通过在[Interceptor]中执行chain.interrupt()方法
-    it.onInterrupt {
-        //...
-    }
+Router.init().open("/user/mine").navigationResult {
+      //路由执行完毕并返回信息
+      it.onSuccess { result ->
+
+      }
+      //路由被中断、通过在[Interceptor]中执行chain.interrupt()方法
+      it.onIntercepted {
+
+      }
+      //路由执行失败,返回值:true执行当前降级逻辑,false执行默认降级逻辑
+      it.onFailure {
+         false 
+      } 
 }
 ```
 
